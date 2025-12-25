@@ -146,7 +146,7 @@ const App = () => {
 
   const renderHome = () => (
     <div className="p-6 pt-8 flex flex-col items-center h-full">
-      <div className="w-full max-w-md mb-6 relative">
+      <div className="w-full max-w-md mb-6 relative shrink-0">
          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" />
          </div>
@@ -160,7 +160,7 @@ const App = () => {
       </div>
 
       {isGlobalSearch ? (
-        <div className="flex-1 w-full max-w-md overflow-y-auto bg-white rounded-3xl shadow-sm border border-gray-100">
+        <div className="flex-1 w-full max-w-md overflow-y-auto bg-white rounded-3xl shadow-sm border border-gray-100 min-h-0">
            <div className="p-4 border-b border-gray-50 flex justify-between items-center sticky top-0 bg-white">
              <h3 className="font-bold text-gray-700">Search Results ({currentWords.length})</h3>
              <button onClick={() => setSearchTerm('')} className="text-sm text-primary-500">Clear</button>
@@ -199,11 +199,11 @@ const App = () => {
         </div>
       ) : (
         <>
-          <div className="mb-8 text-center">
-            <img src="https://peter121tw.github.io/hsk-learning-system/logo.png" alt="HSK Logo" className="w-32 h-32 mx-auto mb-4 object-contain" />
-            <h1 className="text-3xl font-extrabold text-gray-600 mb-2 tracking-tight">新 HSK 3.0 生詞卡學習系統<span className="text-primary-400"></span></h1>
-            <p className="text-gray-400">專業的 HSK 3.0 生詞學習平台</p>
-            <p className="text-gray-400">V.202512250900</p>
+          <div className="mb-4 text-center shrink-0">
+            <img src="https://peter121tw.github.io/hsk-learning-system/logo.png" alt="HSK Logo" className="w-32 h-32 mx-auto mb-2 object-contain" />
+            <h1 className="text-3xl font-extrabold text-gray-600 mb-1 tracking-tight">新 HSK 3.0 生詞卡學習系統<span className="text-primary-400"></span></h1>
+            <p className="text-gray-400 text-sm">專業的 HSK 3.0 生詞學習平台</p>
+            <p className="text-gray-400 text-xs mt-1">V.202512250900</p>
           </div>
           
           {loading ? (
@@ -212,44 +212,46 @@ const App = () => {
                 <span className="text-gray-500">Loading Vocabulary...</span>
              </div>
           ) : (
-            <div className="grid grid-cols-2 gap-4 w-full max-w-md pb-6 overflow-y-auto no-scrollbar">
-              <button
-                onClick={() => handleLevelSelect('favorites')}
-                className="col-span-2 relative group overflow-hidden bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-3xl shadow-sm border border-yellow-100 hover:shadow-lg transition-all active:scale-95"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="text-left">
-                    <div className="text-2xl font-bold text-gray-800 mb-1 flex items-center gap-2">
-                       <Star className="w-6 h-6 text-yellow-500" filled />
-                       Favorites
-                    </div>
-                    <div className="text-sm text-gray-500 font-medium">{favorites.length} Saved Words</div>
-                  </div>
-                  <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center shadow-sm">
-                     <ArrowLeft className="w-5 h-5 text-yellow-500 rotate-180" />
-                  </div>
-                </div>
-              </button>
-
-              {Object.values(HSKLevel).map((level) => {
-                const count = data[level]?.length || 0;
-                return (
+            <div className="flex-1 w-full max-w-md min-h-0 overflow-y-auto no-scrollbar pb-6">
+                <div className="grid grid-cols-2 gap-4">
                   <button
-                    key={level}
-                    onClick={() => handleLevelSelect(level)}
-                    disabled={count === 0}
-                    className="relative group overflow-hidden bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-200 transition-all active:scale-95 disabled:opacity-50"
+                    onClick={() => handleLevelSelect('favorites')}
+                    className="col-span-2 relative group overflow-hidden bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-3xl shadow-sm border border-yellow-100 hover:shadow-lg transition-all active:scale-95 flex items-center justify-between"
                   >
-                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                      <Layers className="w-12 h-12 text-primary-500" />
-                    </div>
                     <div className="text-left">
-                      <div className="text-3xl font-bold text-gray-800 mb-1">HSK {level}</div>
-                      <div className="text-sm text-gray-400 font-medium">{count} Words</div>
+                        <div className="text-2xl font-bold text-gray-800 mb-1 flex items-center gap-2">
+                        <Star className="w-6 h-6 text-yellow-500" filled />
+                        Favorites
+                        </div>
+                        <div className="text-sm text-gray-500 font-medium">{favorites.length} Saved Words</div>
+                    </div>
+                    <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                        <ArrowLeft className="w-5 h-5 text-yellow-500 rotate-180" />
                     </div>
                   </button>
-                );
-              })}
+
+                  {Object.values(HSKLevel).map((level) => {
+                    const count = data[level]?.length || 0;
+                    return (
+                      <button
+                        key={level}
+                        onClick={() => handleLevelSelect(level)}
+                        disabled={count === 0}
+                        className="relative group overflow-hidden bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-200 transition-all active:scale-95 disabled:opacity-50 aspect-square flex flex-col justify-between"
+                      >
+                        <div className="flex justify-end">
+                          <div className="p-2 bg-primary-50 rounded-2xl opacity-80 group-hover:opacity-100 transition-opacity">
+                            <Layers className="w-8 h-8 text-primary-500" />
+                          </div>
+                        </div>
+                        <div className="text-left">
+                          <div className="text-3xl font-bold text-gray-800 mb-1">HSK {level}</div>
+                          <div className="text-sm text-gray-400 font-medium">{count} Words</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
             </div>
           )}
         </>
@@ -259,7 +261,7 @@ const App = () => {
 
   const renderLevelDashboard = () => (
     <div className="flex flex-col h-full bg-gray-50 relative">
-      <div className="px-6 py-6 bg-white shadow-sm z-10 sticky top-0 flex flex-col gap-4">
+      <div className="px-6 py-6 bg-white shadow-sm z-10 sticky top-0 flex flex-col gap-4 shrink-0">
         <div className="flex items-center justify-between">
             <button onClick={handleBack} className="p-2 -ml-2 rounded-full hover:bg-gray-100">
             <ArrowLeft className="w-6 h-6 text-gray-600" />
@@ -284,7 +286,7 @@ const App = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
         {/* Practice Arcade Menu */}
         {currentWords.length > 0 && (
           <div>
@@ -463,7 +465,7 @@ const App = () => {
 
   const renderGameContainer = (children: React.ReactNode) => (
       <div className="h-full flex flex-col">
-          <div className="px-4 py-4">
+          <div className="px-4 py-4 shrink-0">
             <button onClick={() => setViewMode('list')} className="p-2 rounded-full bg-white shadow-sm border border-gray-100 w-fit">
                 <ArrowLeft className="w-5 h-5" />
             </button>
@@ -476,8 +478,8 @@ const App = () => {
 
   const renderGameSetup = () => {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center animate-fade-in">
-        <div className="bg-primary-100 p-6 rounded-full mb-6">
+      <div className="flex flex-col items-center justify-center h-full p-8 text-center animate-fade-in overflow-y-auto min-h-0">
+        <div className="bg-primary-100 p-6 rounded-full mb-6 shrink-0">
            {targetGame === 'quiz' && <BrainCircuit className="w-12 h-12 text-primary-600" />}
            {targetGame === 'speed' && <Timer className="w-12 h-12 text-primary-600" />}
            {targetGame === 'write' && <Edit3 className="w-12 h-12 text-primary-600" />}
@@ -528,7 +530,7 @@ const App = () => {
       case 'flashcard':
         return (
           <div className="h-full flex flex-col">
-             <div className="px-4 py-4 flex items-center justify-between">
+             <div className="px-4 py-4 flex items-center justify-between shrink-0">
                 <button onClick={() => setViewMode('list')} className="p-2 rounded-full bg-white shadow-sm border border-gray-100">
                   <ArrowLeft className="w-5 h-5" />
                 </button>
