@@ -33,7 +33,24 @@
         -webkit-tap-highlight-color: transparent;
         overscroll-behavior-y: none;
       }
-      /* Hide scrollbar for clean app look */
+      
+      /* Custom Green Scrollbar */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background-color: #9abead; /* Low contrast greenish tint blending with #a4cab6 */
+        border-radius: 9999px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background-color: #7d9c8b;
+      }
+
+      /* Hide scrollbar utility */
       .no-scrollbar::-webkit-scrollbar {
         display: none;
       }
@@ -41,6 +58,7 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
       }
+      
       .card-flip {
         perspective: 1000px;
       }

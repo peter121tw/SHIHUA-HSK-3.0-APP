@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { VocabWord, CultureTip } from '../../types';
-import { Camera, Aperture, X, Sparkles, RefreshCw, Check, BookOpen, Target, Shuffle } from '../Icons';
+import { Camera, Aperture, X, Sparkles, RefreshCw, Check, BookOpen, Target, Shuffle, Award, Trophy } from '../Icons';
 import { identifyTextInImage, generateCultureTip } from '../../services/gemini';
 
 interface VocabHunterProps {
@@ -9,6 +9,21 @@ interface VocabHunterProps {
 }
 
 type HunterMode = 'explore' | 'quest';
+
+interface Milestone {
+    count: number;
+    title: string;
+    message: string;
+    icon: 'award' | 'trophy';
+}
+
+const MILESTONES: Milestone[] = [
+    { count: 1, title: 'First Discovery', message: 'You found your first word!', icon: 'award' },
+    { count: 3, title: 'Word Hunter', message: 'Three words found. Keep it up!', icon: 'award' },
+    { count: 5, title: 'Culture Explorer', message: 'Five words! You are learning fast.', icon: 'trophy' },
+    { count: 10, title: 'HSK Master', message: 'Ten words found! Amazing skills.', icon: 'trophy' },
+    { count: 20, title: 'Legendary Scout', message: 'Twenty words! Unstoppable.', icon: 'trophy' },
+];
 
 export const VocabHunter: React.FC<VocabHunterProps> = ({ allWords, onFinish }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -23,6 +38,8 @@ export const VocabHunter: React.FC<VocabHunterProps> = ({ allWords, onFinish }) 
   // Quest Mode State
   const [mode, setMode] = useState<HunterMode>('explore');
   const [questTarget, setQuestTarget] = useState<VocabWord | null>(null);
+  const [questsCompleted, setQuestsCompleted] = useState(0);
+  const [unlockedMilestone, setUnlockedMilestone] = useState<Milestone | null>(null);
 
   useEffect(() => {
     startCamera();
@@ -133,6 +150,16 @@ export const VocabHunter: React.FC<VocabHunterProps> = ({ allWords, onFinish }) 
 
           if (isMatch) {
               match = questTarget;
+              
+              // Increment Progress and Check Milestone
+              const newCount = questsCompleted + 1;
+              setQuestsCompleted(newCount);
+              
+              const milestone = MILESTONES.find(m => m.count === newCount);
+              if (milestone) {
+                  setTimeout(() => setUnlockedMilestone(milestone), 1500); // Delay slightly for effect
+              }
+
           } else {
               // Check if they found SOMETHING else valid, just to give feedback
               const otherMatch = allWords.find(w => detectedTexts.some(d => clean(d).includes(clean(w.hanzi))));
@@ -176,19 +203,46 @@ export const VocabHunter: React.FC<VocabHunterProps> = ({ allWords, onFinish }) 
     setFoundWord(null);
     setCultureTip(null);
     setError(null);
-    // If in quest mode and we just finished one, clicking "Next Quest" should be the action. 
-    // This function is for "Scan Another" in Explore mode logic.
     if (mode === 'quest') {
         generateNewQuest();
     }
   };
 
+  const closeMilestone = () => {
+      setUnlockedMilestone(null);
+  };
+
+  const completionPercentage = allWords.length > 0 ? Math.round((questsCompleted / allWords.length) * 100) : 0;
+
   return (
     <div className="flex flex-col h-full bg-black relative">
       <canvas ref={canvasRef} className="hidden" />
       
+      {/* Milestone Overlay */}
+      {unlockedMilestone && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-6 animate-fade-in">
+              <div className="bg-gradient-to-br from-yellow-100 to-white rounded-3xl p-8 w-full max-w-sm text-center shadow-2xl animate-scale-in relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-2 bg-yellow-400"></div>
+                  <div className="flex justify-center mb-4">
+                      <div className="p-4 bg-yellow-400 rounded-full shadow-lg text-white animate-bounce-short">
+                          {unlockedMilestone.icon === 'trophy' ? <Trophy className="w-12 h-12" /> : <Award className="w-12 h-12" />}
+                      </div>
+                  </div>
+                  <h3 className="text-2xl font-black text-yellow-800 mb-2 uppercase tracking-wide">Milestone Unlocked!</h3>
+                  <div className="text-xl font-bold text-gray-800 mb-2">{unlockedMilestone.title}</div>
+                  <p className="text-gray-600 mb-6">{unlockedMilestone.message}</p>
+                  <button 
+                    onClick={closeMilestone}
+                    className="w-full py-3 bg-yellow-500 hover:bg-yellow-600 text-white font-bold rounded-xl shadow-md transition-all active:scale-95"
+                  >
+                      Awesome!
+                  </button>
+              </div>
+          </div>
+      )}
+      
       {/* Top Bar */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-4 pt-4 flex flex-col gap-4 bg-gradient-to-b from-black/80 to-transparent">
+      <div className="absolute top-0 left-0 right-0 z-20 p-4 pt-4 flex flex-col gap-2 bg-gradient-to-b from-black/80 to-transparent">
          <div className="flex justify-between items-center w-full">
             <button onClick={onFinish} className="p-2 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30">
                 <X className="w-6 h-6" />
@@ -199,9 +253,25 @@ export const VocabHunter: React.FC<VocabHunterProps> = ({ allWords, onFinish }) 
             <div className="w-10"></div>
          </div>
 
+         {/* Quest Progress Bar */}
+         {mode === 'quest' && !foundWord && (
+             <div className="w-full max-w-xs mx-auto animate-fade-in">
+                 <div className="flex justify-between text-xs text-white/80 font-bold mb-1 px-1">
+                     <span>{questsCompleted} Found</span>
+                     <span>{completionPercentage}% Complete</span>
+                 </div>
+                 <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
+                     <div 
+                        className="h-full bg-gradient-to-r from-orange-400 to-yellow-400 transition-all duration-500"
+                        style={{ width: `${Math.min(100, completionPercentage)}%` }}
+                     ></div>
+                 </div>
+             </div>
+         )}
+
          {/* Mode Switcher */}
          {!foundWord && (
-             <div className="flex justify-center w-full">
+             <div className="flex justify-center w-full mt-2">
                 <div className="bg-black/40 backdrop-blur-md rounded-full p-1 flex border border-white/10">
                     <button 
                         onClick={() => { setMode('explore'); setError(null); }}
@@ -222,7 +292,7 @@ export const VocabHunter: React.FC<VocabHunterProps> = ({ allWords, onFinish }) 
 
       {/* Quest Target Overlay */}
       {mode === 'quest' && questTarget && !foundWord && (
-          <div className="absolute top-28 left-4 right-4 z-20 animate-slide-down">
+          <div className="absolute top-36 left-4 right-4 z-20 animate-slide-down">
               <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 shadow-xl border border-white/50 relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-1 h-full bg-primary-500"></div>
                   <div className="flex justify-between items-center">
@@ -386,6 +456,13 @@ export const VocabHunter: React.FC<VocabHunterProps> = ({ allWords, onFinish }) 
         @keyframes bounce-short {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
+        }
+        @keyframes scale-in {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-scale-in {
+            animation: scale-in 0.3s ease-out forwards;
         }
       `}</style>
     </div>
