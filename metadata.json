@@ -2,6 +2,7 @@
   "name": "新 HSK 3.0 生詞卡學習系統",
   "description": "A modern, AI-powered HSK vocabulary learning application. Features flashcards, quizzes, and an AI tutor for contextual examples.",
   "requestFramePermissions": [
-    "microphone"
+    "microphone",
+    "camera"
   ]
 }

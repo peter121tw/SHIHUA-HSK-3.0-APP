@@ -1,14 +1,20 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { fetchVocabData, syncWordToSheet } from './services/api';
 import { VocabWord, AppData, ViewMode, HSKLevel } from './types';
-import { Layers, BrainCircuit, ArrowLeft, RefreshCw, Search, Star, Plus, Trash2, Timer, Grid, Edit3, Type } from './components/Icons';
+import { Layers, BrainCircuit, ArrowLeft, RefreshCw, Search, Star, Timer, Grid, Edit3, Type, FileText, Camera } from './components/Icons';
 import { Flashcard } from './components/Flashcard';
 import { Quiz } from './components/Quiz';
 import { SpeedChallenge } from './components/games/SpeedChallenge';
 import { MatchGame } from './components/games/MatchGame';
 import { WriteQuiz } from './components/games/WriteQuiz';
 import { PinyinGame } from './components/games/PinyinGame';
-import { WordForm } from './components/WordForm';
+import { SentenceFillIn } from './components/games/SentenceFillIn';
+import { VocabHunter } from './components/games/VocabHunter';
+
+// Helper to remove tones from Pinyin for searching
+const normalizeText = (text: string) => {
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+};
 
 const App = () => {
   const [data, setData] = useState<AppData>({});
@@ -16,11 +22,10 @@ const App = () => {
   const [selectedLevel, setSelectedLevel] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('home');
   const [flashcardIndex, setFlashcardIndex] = useState(0);
-  const [isAddingWord, setIsAddingWord] = useState(false);
   
   // States for Game Setup
   const [activeGameWords, setActiveGameWords] = useState<VocabWord[]>([]);
-  const [targetGame, setTargetGame] = useState<'quiz' | 'speed' | 'write' | null>(null);
+  const [targetGame, setTargetGame] = useState<'quiz' | 'speed' | 'write' | 'sentence' | null>(null);
 
   const [favorites, setFavorites] = useState<string[]>(() => {
     try {
@@ -55,63 +60,40 @@ const App = () => {
     });
   };
 
-  const handleAddWord = async (newWord: VocabWord) => {
-      const targetLevel = String(newWord.level);
-      const persistentId = Date.now().toString(); 
-      const wordWithId = { ...newWord, id: persistentId };
-
-      setData(prev => {
-          const newData = { ...prev };
-          if (!newData[targetLevel]) newData[targetLevel] = [];
-          newData[targetLevel] = [wordWithId, ...newData[targetLevel]];
-          return newData;
-      });
-
-      setIsAddingWord(false);
-      await syncWordToSheet('add', wordWithId);
-  };
-
-  const handleDeleteWord = async (word: VocabWord) => {
-      if (!confirm(`Are you sure you want to delete "${word.hanzi}" from the sheet?`)) return;
-
-      const targetLevel = String(word.level);
-      setData(prev => {
-          const newData = { ...prev };
-          if (newData[targetLevel]) {
-              if (word.id) {
-                 newData[targetLevel] = newData[targetLevel].filter(w => w.id !== word.id);
-              } else {
-                 newData[targetLevel] = newData[targetLevel].filter(w => w.hanzi !== word.hanzi);
-              }
-          }
-          return newData;
-      });
-
-      await syncWordToSheet('delete', word);
-  };
-
   const allWords = useMemo(() => Object.values(data).flat(), [data]);
+
+  const filterWords = (words: VocabWord[], term: string) => {
+    if (!term) return words;
+    const lowerTerm = term.toLowerCase().trim();
+    const normalizedTerm = normalizeText(lowerTerm);
+
+    return words.filter(w => {
+      const normalizedPinyin = normalizeText(w.pinyin);
+      
+      return (
+        w.hanzi.includes(lowerTerm) || // Simplified
+        (w.traditional && w.traditional.includes(lowerTerm)) || // Traditional
+        w.pinyin.toLowerCase().includes(lowerTerm) || // Pinyin (Exact/Partial)
+        normalizedPinyin.includes(normalizedTerm) || // Pinyin (No Tones)
+        w.translations.some(t => t.toLowerCase().includes(lowerTerm)) || // English
+        w.translationsThai?.some(t => t.toLowerCase().includes(lowerTerm)) // Thai
+      );
+    });
+  };
 
   const currentWords = useMemo(() => {
     if (selectedLevel === 'favorites') {
-      return allWords.filter(w => w.id && favorites.includes(w.id));
+      const favWords = allWords.filter(w => w.id && favorites.includes(w.id));
+      return filterWords(favWords, searchTerm);
     }
     if (selectedLevel && data[selectedLevel]) {
       if (viewMode === 'list' && searchTerm) {
-        return data[selectedLevel].filter(w => 
-          w.hanzi.includes(searchTerm) || 
-          w.pinyin.toLowerCase().includes(searchTerm.toLowerCase()) || 
-          w.translations.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
+        return filterWords(data[selectedLevel], searchTerm);
       }
       return data[selectedLevel];
     }
     if (viewMode === 'home' && searchTerm) {
-       return allWords.filter(w => 
-          w.hanzi.includes(searchTerm) || 
-          w.pinyin.toLowerCase().includes(searchTerm.toLowerCase()) || 
-          w.translations.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
+       return filterWords(allWords, searchTerm);
     }
     return [];
   }, [selectedLevel, data, viewMode, searchTerm, allWords, favorites]);
@@ -135,7 +117,7 @@ const App = () => {
     }
   };
 
-  const initiateGameSetup = (game: 'quiz' | 'speed' | 'write') => {
+  const initiateGameSetup = (game: 'quiz' | 'speed' | 'write' | 'sentence') => {
     setTargetGame(game);
     setViewMode('game_setup');
   };
@@ -145,6 +127,11 @@ const App = () => {
 
     let gameWords = [...currentWords];
     
+    // For sentence game, filter first to ensure we have valid content
+    if (targetGame === 'sentence') {
+        gameWords = gameWords.filter(w => w.sheetExample && w.sheetExample.includes(w.hanzi));
+    }
+
     // Shuffle words first to get a random selection
     gameWords.sort(() => 0.5 - Math.random());
 
@@ -165,7 +152,7 @@ const App = () => {
          </div>
          <input 
             type="text"
-            placeholder="Search any word..."
+            placeholder="Search Hanzi, Pinyin (no tone), English..."
             className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-2xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm shadow-sm transition-all"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -185,11 +172,25 @@ const App = () => {
                 {currentWords.slice(0, 100).map((word, idx) => (
                   <div key={idx} className="flex items-center justify-between p-4 border-b border-gray-50 hover:bg-gray-50">
                      <div>
-                        <div className="font-bold text-gray-800">{word.hanzi} <span className="text-xs text-primary-500 bg-primary-50 px-2 py-0.5 rounded-full ml-2">HSK {word.level}</span></div>
-                        <div className="text-sm text-gray-400">{word.pinyin}</div>
+                        <div className="font-bold text-gray-800 flex items-center gap-2">
+                            {word.hanzi} 
+                            <span className="text-xs text-primary-500 bg-primary-50 px-2 py-0.5 rounded-full">HSK {word.level}</span>
+                        </div>
+                        <div className="text-sm text-gray-400 flex items-center gap-2">
+                            <span>{word.pinyin}</span>
+                            {word.partOfSpeech && (
+                                <span className="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded text-[10px] border border-gray-200">
+                                    {word.partOfSpeech}
+                                </span>
+                            )}
+                        </div>
                      </div>
-                     <div className="text-right">
-                        <div className="text-sm text-gray-600 truncate max-w-[120px]">{word.translations[0]}</div>
+                     <div className="text-right max-w-[120px] sm:max-w-[180px]">
+                        <div className="text-sm text-gray-600 break-words whitespace-normal leading-tight">
+                            {(word.translationsThai && word.translationsThai.length > 0)
+                                ? word.translationsThai.join(', ')
+                                : word.translations.join(', ')}
+                        </div>
                      </div>
                   </div>
                 ))}
@@ -348,7 +349,7 @@ const App = () => {
                  <button 
                     onClick={() => setViewMode('pinyin')}
                     disabled={currentWords.length < 4}
-                    className="col-span-2 p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all text-left flex flex-row items-center gap-4 disabled:opacity-50"
+                    className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all text-left flex flex-row items-center gap-4 disabled:opacity-50"
                  >
                     <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-600">
                         <Type className="w-5 h-5" />
@@ -356,6 +357,34 @@ const App = () => {
                     <div>
                         <div className="font-bold text-gray-800">Pinyin Master</div>
                         <div className="text-xs text-gray-400">Reverse lookup</div>
+                    </div>
+                 </button>
+
+                 <button 
+                    onClick={() => initiateGameSetup('sentence')}
+                    disabled={currentWords.filter(w => w.sheetExample).length < 4}
+                    className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all text-left flex flex-row items-center gap-4 disabled:opacity-50"
+                 >
+                    <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
+                        <FileText className="w-5 h-5" />
+                    </div>
+                    <div>
+                        <div className="font-bold text-gray-800">Sentence Fill</div>
+                        <div className="text-xs text-gray-400">Context practice</div>
+                    </div>
+                 </button>
+
+                 {/* New Vocab Hunter Button */}
+                 <button 
+                    onClick={() => setViewMode('hunter')}
+                    className="p-4 bg-gradient-to-br from-gray-800 to-black rounded-2xl shadow-md border border-gray-700 hover:shadow-lg transition-all text-left flex flex-row items-center gap-4 col-span-2 group"
+                 >
+                    <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform">
+                        <Camera className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <div className="font-bold text-white text-lg">Vocab Hunter</div>
+                        <div className="text-xs text-gray-400">Scan & Unlock Culture</div>
                     </div>
                  </button>
               </div>
@@ -395,15 +424,17 @@ const App = () => {
                                    <span className="text-gray-400 text-base font-normal">({word.traditional})</span>
                                 )}
                             </div>
-                            <div className="text-sm text-gray-400 flex gap-2">
+                            <div className="text-sm text-gray-400 flex gap-2 items-center">
                               <span>{word.pinyin}</span>
-                              {word.partOfSpeech && <span className="bg-gray-100 px-1 rounded text-xs">{word.partOfSpeech}</span>}
+                              {word.partOfSpeech && <span className="bg-gray-100 px-1.5 py-0.5 rounded text-[10px] border border-gray-200">{word.partOfSpeech}</span>}
                             </div>
                         </div>
                         <div className="flex items-center gap-4">
-                            <div className="text-right max-w-[100px] sm:max-w-[150px]">
-                                <div className="text-sm text-gray-600 truncate">
-                                    {word.translationsThai?.[0] || word.translations[0]}
+                            <div className="text-right max-w-[120px] sm:max-w-[200px]">
+                                <div className="text-sm text-gray-600 break-words whitespace-normal leading-tight">
+                                    {(word.translationsThai && word.translationsThai.length > 0)
+                                        ? word.translationsThai.join(', ')
+                                        : word.translations.join(', ')}
                                 </div>
                             </div>
                             <div className="flex items-center gap-1">
@@ -413,15 +444,6 @@ const App = () => {
                               >
                                   <Star className={`w-5 h-5 ${favorites.includes(word.id!) ? 'text-yellow-400' : 'text-gray-200'}`} filled={favorites.includes(word.id!)} />
                               </button>
-                              
-                              {selectedLevel !== 'favorites' && (
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); handleDeleteWord(word); }}
-                                    className="p-2 rounded-full hover:bg-red-50 active:scale-90 transition-transform group-hover:opacity-100 opacity-0 sm:opacity-100"
-                                >
-                                    <Trash2 className="w-5 h-5 text-gray-300 hover:text-red-500" />
-                                </button>
-                              )}
                             </div>
                         </div>
                     </div>
@@ -436,15 +458,6 @@ const App = () => {
           </div>
         </div>
       </div>
-
-      {selectedLevel && selectedLevel !== 'favorites' && !isGlobalSearch && (
-        <button 
-          onClick={() => setIsAddingWord(true)}
-          className="absolute bottom-6 right-6 h-14 w-14 bg-primary-600 rounded-full shadow-xl shadow-primary-200 text-white flex items-center justify-center hover:bg-primary-700 active:scale-90 transition-all z-20"
-        >
-          <Plus className="w-8 h-8" />
-        </button>
-      )}
     </div>
   );
 
@@ -468,11 +481,13 @@ const App = () => {
            {targetGame === 'quiz' && <BrainCircuit className="w-12 h-12 text-primary-600" />}
            {targetGame === 'speed' && <Timer className="w-12 h-12 text-primary-600" />}
            {targetGame === 'write' && <Edit3 className="w-12 h-12 text-primary-600" />}
+           {targetGame === 'sentence' && <FileText className="w-12 h-12 text-primary-600" />}
         </div>
         <h2 className="text-3xl font-bold text-gray-800 mb-2">
             {targetGame === 'quiz' && 'Quiz Mode'}
             {targetGame === 'speed' && 'Speed Run'}
             {targetGame === 'write' && 'Write It'}
+            {targetGame === 'sentence' && 'Sentence Fill'}
         </h2>
         <p className="text-gray-500 mb-8">How many words would you like to practice?</p>
         
@@ -481,7 +496,7 @@ const App = () => {
                 <button
                     key={count}
                     onClick={() => startGameWithCount(count)}
-                    disabled={currentWords.length < count}
+                    disabled={activeGameWords.length > 0 ? activeGameWords.length < count : currentWords.length < count}
                     className="py-4 rounded-xl bg-white border-2 border-gray-200 text-gray-700 font-bold text-lg hover:border-primary-500 hover:text-primary-600 active:bg-primary-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {count}
@@ -583,6 +598,22 @@ const App = () => {
                 onToggleFavorite={toggleFavorite}
             />
         );
+      case 'sentence':
+         return renderGameContainer(
+            <SentenceFillIn 
+                words={activeGameWords} 
+                onFinish={() => setViewMode('list')}
+                favorites={favorites}
+                onToggleFavorite={toggleFavorite}
+            />
+        );
+      case 'hunter':
+         return (
+             <VocabHunter 
+                allWords={currentWords}
+                onFinish={() => setViewMode('list')}
+             />
+         );
       default:
         return renderHome();
     }
@@ -591,14 +622,6 @@ const App = () => {
   return (
     <div className="w-full h-full max-w-md mx-auto bg-gray-50 sm:border-x border-gray-200 shadow-2xl relative">
        {renderContent()}
-       
-       {isAddingWord && (
-          <WordForm 
-             initialLevel={selectedLevel || '1'} 
-             onSave={handleAddWord} 
-             onCancel={() => setIsAddingWord(false)} 
-          />
-       )}
     </div>
   );
 };

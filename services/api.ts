@@ -29,7 +29,14 @@ export const fetchVocabData = async (): Promise<AppData> => {
       // Apps Script keys: id, simplified, traditional, pinyin, word_type, thai_meanings, example_sentences, hsk_level
       
       const hanzi = item.simplified || item.hanzi || '';
-      const level = String(item.hsk_level || item.level || '1');
+      
+      let rawLevel = String(item.hsk_level || item.level || '1');
+      // Normalize HSK 7, 8, 9 to '7-9'
+      if (['7', '8', '9'].includes(rawLevel)) {
+        rawLevel = '7-9';
+      }
+      const level = rawLevel;
+
       const id = item.id ? String(item.id) : `word-${index}`;
       const pinyin = item.pinyin || '';
       const traditional = item.traditional || '';

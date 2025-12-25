@@ -84,8 +84,10 @@ const WordResultRow = ({ word, isFavorite, onToggle, type }: { word: VocabWord, 
          </div>
       </div>
       <div className="flex items-center gap-3">
-          <div className="text-right max-w-[100px] truncate text-sm text-gray-600 hidden sm:block">
-             {word.translationsThai?.[0] || word.translations[0]}
+          <div className="text-right max-w-[150px] text-sm text-gray-600 break-words whitespace-normal leading-tight hidden sm:block">
+             {(word.translationsThai && word.translationsThai.length > 0)
+                ? word.translationsThai.join(', ')
+                : word.translations.join(', ')}
           </div>
           <button onClick={(e) => { e.stopPropagation(); onToggle(); }} className="p-2 rounded-full hover:bg-gray-50 active:scale-90 transition-transform">
              <Star className={`w-6 h-6 ${isFavorite ? 'text-yellow-400' : 'text-gray-200'}`} filled={isFavorite} />
