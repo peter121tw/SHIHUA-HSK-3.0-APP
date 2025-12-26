@@ -119,6 +119,7 @@ const App = () => {
 
   const initiateGameSetup = (game: 'quiz' | 'speed' | 'write' | 'sentence') => {
     setTargetGame(game);
+    setActiveGameWords([]); // Clear previous game words to reset selection logic
     setViewMode('game_setup');
   };
 
@@ -200,7 +201,7 @@ const App = () => {
       ) : (
         <>
           <div className="mb-4 text-center shrink-0">
-            <img src="https://peter121tw.github.io/hsk-learning-system/logo.png" alt="HSK Logo" className="w-32 h-32 mx-auto mb-2 object-contain" />
+            <img src="./logo.png" alt="HSK Logo" className="w-32 h-32 mx-auto mb-2 object-contain" />
             <h1 className="text-3xl font-extrabold text-gray-600 mb-1 tracking-tight">新 HSK 3.0 生詞卡學習系統<span className="text-primary-400"></span></h1>
             <p className="text-gray-400 text-sm">專業的 HSK 3.0 生詞學習平台</p>
             <p className="text-gray-400 text-xs mt-1">V.202512250900</p>
@@ -477,6 +478,11 @@ const App = () => {
   );
 
   const renderGameSetup = () => {
+    // Determine actual available words based on the game type criteria
+    const availableCount = targetGame === 'sentence' 
+        ? currentWords.filter(w => w.sheetExample && w.sheetExample.includes(w.hanzi)).length
+        : currentWords.length;
+
     return (
       <div className="flex flex-col items-center justify-center h-full p-8 text-center animate-fade-in overflow-y-auto min-h-0">
         <div className="bg-primary-100 p-6 rounded-full mb-6 shrink-0">
@@ -498,7 +504,7 @@ const App = () => {
                 <button
                     key={count}
                     onClick={() => startGameWithCount(count)}
-                    disabled={activeGameWords.length > 0 ? activeGameWords.length < count : currentWords.length < count}
+                    disabled={availableCount < count}
                     className="py-4 rounded-xl bg-white border-2 border-gray-200 text-gray-700 font-bold text-lg hover:border-primary-500 hover:text-primary-600 active:bg-primary-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {count}
@@ -508,7 +514,7 @@ const App = () => {
                 onClick={() => startGameWithCount('all')}
                 className="py-4 rounded-xl bg-primary-600 border-2 border-primary-600 text-white font-bold text-lg hover:bg-primary-700 active:scale-95 transition-all"
             >
-                All ({currentWords.length})
+                All ({availableCount})
             </button>
         </div>
 

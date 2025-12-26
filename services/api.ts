@@ -1,7 +1,16 @@
 import { VocabWord, AppData } from '../types';
 
-// The URL provided by the user
-const API_URL = 'https://script.google.com/macros/s/AKfycbyWXTEV9W1UJFm1BiaX4vx45v1UnQM0TcV4W1ttydcXrji7oHF4d0Ni4REw8Jlu5-eP/exec';
+// The URL provided by the user, customizable via ?api= URL parameter
+const getApiUrl = () => {
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const apiParam = params.get('api');
+    if (apiParam) return apiParam;
+  }
+  return 'https://script.google.com/macros/s/AKfycbyWXTEV9W1UJFm1BiaX4vx45v1UnQM0TcV4W1ttydcXrji7oHF4d0Ni4REw8Jlu5-eP/exec';
+};
+
+const API_URL = getApiUrl();
 
 export const fetchVocabData = async (): Promise<AppData> => {
   try {
@@ -75,65 +84,46 @@ export const fetchVocabData = async (): Promise<AppData> => {
       if (!processedData[level]) {
         processedData[level] = [];
       }
-      
-      // Only add words that have at least a Chinese character
-      if (word.hanzi) {
-        processedData[level].push(word);
-      }
+      processedData[level].push(word);
     });
 
     return processedData;
   } catch (error) {
-    console.error("API Error:", error);
-    return {};
+    console.error("Fetch Error:", error);
+    throw error;
   }
 };
 
-/**
- * Sends a request to the Google Apps Script to Add or Delete a word.
- * Matches the doPost(e) logic in the provided Apps Script.
- */
-export const syncWordToSheet = async (action: 'add' | 'delete', word: VocabWord): Promise<boolean> => {
-    try {
-        let payload: any = {};
-        
-        // Map frontend action 'add' -> backend 'create'
-        if (action === 'add') {
-            payload = {
-                action: 'create',
-                word: {
-                    id: word.id, // ID is generated in App.tsx before calling this
-                    simplified: word.hanzi,
-                    traditional: word.traditional || '',
-                    pinyin: word.pinyin,
-                    word_type: word.partOfSpeech || '',
-                    thai_meanings: word.translationsThai?.join('|') || word.translations.join('|'), // Join with Pipe for consistency
-                    example_sentences: word.sheetExample || '',
-                    hsk_level: word.level,
-                    created_at: new Date().toISOString()
-                }
-            };
-        } else if (action === 'delete') {
-            payload = {
-                action: 'delete',
-                id: word.id
-            };
-        }
+export const syncWordToSheet = async (word: VocabWord): Promise<any> => {
+  try {
+    const payload = {
+        action: 'add_word',
+        hanzi: word.hanzi,
+        pinyin: word.pinyin,
+        level: word.level,
+        meaning: word.translations.join(', '),
+        thai_meanings: word.translationsThai ? word.translationsThai.join(', ') : '',
+        traditional: word.traditional || '',
+        partOfSpeech: word.partOfSpeech || '',
+        example: word.sheetExample || ''
+    };
 
-        // Use 'no-cors' mode. We won't get a JSON response back in the browser, 
-        // but the request will execute on the server.
-        await fetch(API_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
-        
-        return true;
-    } catch (error) {
-        console.error("Sync Error:", error);
-        return false;
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(payload)
+    });
+
+    try {
+      const result = await response.json();
+      return result;
+    } catch (e) {
+      return { success: true };
     }
+  } catch (error) {
+    console.error("Sync Error:", error);
+    throw error;
+  }
 };
