@@ -89,34 +89,41 @@ export const fetchVocabData = async (): Promise<AppData> => {
 
     return processedData;
   } catch (error) {
-    console.error("Error fetching data:", error);
-    return {};
+    console.error("Fetch Error:", error);
+    throw error;
   }
 };
 
-export const syncWordToSheet = async (word: VocabWord): Promise<void> => {
+export const syncWordToSheet = async (word: VocabWord): Promise<any> => {
   try {
     const payload = {
-        action: 'add',
+        action: 'add_word',
         hanzi: word.hanzi,
         pinyin: word.pinyin,
-        translations: word.translations.join(', '),
         level: word.level,
-        traditional: word.traditional,
-        partOfSpeech: word.partOfSpeech,
-        thai_meanings: word.translationsThai?.join(', '),
-        example_sentences: word.sheetExample
+        meaning: word.translations.join(', '),
+        thai_meanings: word.translationsThai ? word.translationsThai.join(', ') : '',
+        traditional: word.traditional || '',
+        partOfSpeech: word.partOfSpeech || '',
+        example: word.sheetExample || ''
     };
 
-    await fetch(API_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload)
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain;charset=utf-8',
+        },
+        body: JSON.stringify(payload)
     });
+
+    try {
+      const result = await response.json();
+      return result;
+    } catch (e) {
+      return { success: true };
+    }
   } catch (error) {
-    console.error("Error syncing word:", error);
+    console.error("Sync Error:", error);
+    throw error;
   }
 };

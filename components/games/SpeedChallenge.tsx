@@ -101,45 +101,45 @@ export const SpeedChallenge: React.FC<SpeedChallengeProps> = ({ words, onFinish,
     );
   }
 
-  if (!currentWord) return <div className="p-8 text-center text-gray-400">Loading...</div>;
+  if (!currentWord) return <div>Loading...</div>;
 
   return (
-    <div className="flex flex-col h-full p-4 max-w-4xl mx-auto">
+    <div className="flex flex-col h-full p-4 max-w-md mx-auto">
       <div className="flex justify-between items-center mb-6">
-         <div className="flex items-center gap-2 bg-orange-100 px-6 py-3 rounded-2xl text-orange-700 font-bold font-mono text-xl shadow-sm">
-            <Timer className="w-6 h-6" />
+         <div className="flex items-center gap-2 bg-orange-100 px-4 py-2 rounded-full text-orange-700 font-bold font-mono">
+            <Timer className="w-5 h-5" />
             <span>{timeLeft}s</span>
          </div>
-         <div className="text-4xl font-black text-primary-600 drop-shadow-sm">{score}</div>
+         <div className="text-2xl font-black text-primary-600">{score}</div>
       </div>
 
       <div className="flex-1 flex flex-col justify-center mb-8">
-        <div className="text-center p-12 bg-white rounded-[2rem] shadow-sm border border-gray-100">
-             <div className="text-8xl font-bold text-gray-800 mb-6">{currentWord.hanzi}</div>
+        <div className="text-center p-8 bg-white rounded-3xl shadow-sm border border-gray-100">
+             <div className="text-6xl font-bold text-gray-800 mb-4">{currentWord.hanzi}</div>
              
              {showPinyin ? (
-                <div className="text-2xl text-primary-600 font-medium mb-3 animate-fade-in">{currentWord.pinyin}</div>
+                <div className="text-xl text-primary-600 font-medium mb-2 animate-fade-in">{currentWord.pinyin}</div>
              ) : (
                 <button 
                     onClick={() => setShowPinyin(true)}
-                    className="mb-3 px-6 py-2 bg-gray-50 hover:bg-gray-100 text-gray-500 text-sm font-bold uppercase tracking-wider rounded-lg transition-colors border border-gray-200"
+                    className="mb-2 px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-500 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors"
                 >
                     Show Pinyin
                 </button>
              )}
 
              {currentWord.partOfSpeech && (
-                <span className="inline-block bg-gray-100 text-gray-500 text-sm px-4 py-1 rounded-full mt-2 border border-gray-200">{currentWord.partOfSpeech}</span>
+                <span className="inline-block bg-gray-100 text-gray-500 text-sm px-3 py-1 rounded-full mt-1">{currentWord.partOfSpeech}</span>
              )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 gap-3 mb-4">
         {options.map((opt, idx) => (
           <button
             key={idx}
             onClick={() => handleAnswer(opt)}
-            className="py-6 px-6 bg-white border-2 border-gray-100 rounded-2xl text-xl font-medium text-gray-700 hover:border-primary-400 hover:bg-primary-50 hover:shadow-md active:scale-95 transition-all"
+            className="py-4 px-6 bg-white border-2 border-gray-100 rounded-xl text-lg font-medium text-gray-700 hover:border-primary-400 hover:bg-primary-50 active:scale-95 transition-all"
           >
             {opt}
           </button>

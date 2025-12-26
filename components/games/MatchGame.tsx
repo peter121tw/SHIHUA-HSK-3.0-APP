@@ -110,38 +110,38 @@ export const MatchGame: React.FC<MatchGameProps> = ({ words, onFinish, favorites
   }
 
   return (
-    <div className="h-full p-4 flex flex-col max-w-5xl mx-auto">
-       <div className="text-center mb-6 text-gray-500 font-medium text-lg">Find the pairs ({matchesFound}/6)</div>
-       <div className="grid grid-cols-3 md:grid-cols-4 gap-4 flex-1 content-center">
+    <div className="h-full p-4 flex flex-col">
+       <div className="text-center mb-4 text-gray-500 font-medium">Find the pairs ({matchesFound}/6)</div>
+       <div className="grid grid-cols-3 gap-3 flex-1 content-center">
           {cards.map(card => (
              <div 
                 key={card.id}
                 onClick={() => handleCardClick(card)}
                 className={`
-                    relative aspect-square rounded-2xl cursor-pointer transition-all duration-300 transform hover:scale-[1.02]
+                    relative aspect-square rounded-xl cursor-pointer transition-all duration-300 transform
                     ${card.isMatched ? 'opacity-0 scale-90 pointer-events-none' : 'opacity-100 scale-100'}
                 `}
              >
                 <div className={`
-                    absolute inset-0 rounded-2xl flex items-center justify-center p-2 text-center shadow-sm border-2
+                    absolute inset-0 rounded-xl flex items-center justify-center p-2 text-center shadow-sm border-2
                     transition-all duration-300
                     ${card.isFlipped 
-                        ? 'bg-white border-primary-500 rotate-0 shadow-md' 
-                        : 'bg-primary-50 border-primary-200 rotate-y-180 text-transparent hover:bg-primary-100'}
+                        ? 'bg-white border-primary-500 rotate-0' 
+                        : 'bg-primary-100 border-primary-200 rotate-y-180 text-transparent'}
                 `}>
                     {card.isFlipped ? (
                         <div className="flex flex-col items-center justify-center w-full h-full overflow-hidden">
-                            <span className={`font-bold ${card.type === 'hanzi' ? 'text-3xl md:text-4xl text-gray-800' : 'text-sm md:text-lg text-teal-700 break-words'}`}>
+                            <span className={`font-bold ${card.type === 'hanzi' ? 'text-xl text-gray-800' : 'text-xs sm:text-sm text-teal-700 break-words'}`}>
                                 {card.content}
                             </span>
                              {card.type === 'hanzi' && card.partOfSpeech && (
-                                <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full mt-2 whitespace-nowrap">
+                                <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full mt-1.5 whitespace-nowrap">
                                     {card.partOfSpeech}
                                 </span>
                             )}
                         </div>
                     ) : (
-                        <span className="text-primary-300 font-bold text-3xl">?</span>
+                        <span className="text-primary-300 font-bold text-2xl">?</span>
                     )}
                 </div>
              </div>

@@ -1,0 +1,20 @@
+{
+  "name": "新 HSK 3.0 生詞卡",
+  "short_name": "HSK Master",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f0fdfa",
+  "theme_color": "#14b8a6",
+  "icons": [
+    {
+      "src": "./logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

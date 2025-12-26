@@ -58,92 +58,92 @@ export const Flashcard: React.FC<FlashcardProps> = ({ word, isFavorite, onToggle
   const examples = getExamples(word.sheetExample);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full max-w-3xl mx-auto p-4">
+    <div className="flex flex-col items-center justify-center w-full h-full max-w-md mx-auto p-4">
       <div 
-        className={`relative w-full aspect-[4/3] md:aspect-video cursor-pointer card-flip group ${flipped ? 'card-flipped' : ''}`}
+        className={`relative w-full aspect-[3/4] cursor-pointer card-flip group ${flipped ? 'card-flipped' : ''}`}
         onClick={() => setFlipped(!flipped)}
       >
         <div className="absolute w-full h-full transition-all duration-500 preserve-3d card-inner">
           
           {/* --- Front Side --- */}
-          <div className="absolute w-full h-full bg-white rounded-3xl shadow-xl border-2 border-primary-50 flex flex-col items-center justify-center p-8 backface-hidden card-front hover:border-primary-200 transition-colors">
+          <div className="absolute w-full h-full bg-white rounded-3xl shadow-xl border-2 border-primary-50 flex flex-col items-center justify-center p-8 backface-hidden card-front">
             
             <button 
               onClick={toggleFav}
-              className="absolute top-8 right-8 p-2 rounded-full text-yellow-400 hover:bg-yellow-50 transition-colors z-20"
+              className="absolute top-6 right-6 p-2 rounded-full text-yellow-400 hover:bg-yellow-50 transition-colors z-20"
             >
-              <Star className="w-10 h-10" filled={isFavorite} />
+              <Star className="w-8 h-8" filled={isFavorite} />
             </button>
 
-            <span className="absolute top-8 left-8 text-sm font-bold text-gray-300 uppercase tracking-widest">HSK {word.level}</span>
+            <span className="absolute top-6 left-6 text-sm font-bold text-gray-300">HSK {word.level}</span>
             
             <div className="flex flex-col items-center justify-center flex-1">
-                <div className="text-9xl font-bold text-gray-800 mb-6 text-center">{word.hanzi}</div>
+                <div className="text-8xl font-bold text-gray-800 mb-4 text-center">{word.hanzi}</div>
                 
                 {/* POS on Front */}
                 {word.partOfSpeech && (
-                    <span className="px-6 py-2 bg-primary-50 text-primary-600 text-xl rounded-full font-medium border border-primary-100">
+                    <span className="px-4 py-1.5 bg-primary-50 text-primary-600 text-lg rounded-full font-medium border border-primary-100">
                         {word.partOfSpeech}
                     </span>
                 )}
             </div>
 
-            <div className="text-gray-400 text-sm mt-4 font-medium uppercase tracking-wider">Tap card to flip</div>
+            <div className="text-gray-400 text-sm mt-4">Tap to reveal</div>
             
             <button 
               onClick={handleSpeech}
-              className="absolute bottom-8 right-8 p-4 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 transition-colors z-20"
+              className="absolute bottom-6 right-6 p-3 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 transition-colors z-20"
             >
-              <Volume2 className="w-8 h-8" />
+              <Volume2 className="w-6 h-6" />
             </button>
           </div>
 
           {/* --- Back Side --- */}
-          <div className="absolute w-full h-full bg-white rounded-3xl shadow-xl border-2 border-primary-500 flex flex-col p-8 backface-hidden card-back overflow-hidden">
+          <div className="absolute w-full h-full bg-white rounded-3xl shadow-xl border-2 border-primary-500 flex flex-col p-6 backface-hidden card-back overflow-hidden">
              
              {/* Header Section (Fixed Top) */}
-             <div className="flex-none border-b border-gray-100 pb-6 mb-6 relative">
+             <div className="flex-none border-b border-gray-100 pb-4 mb-4 relative">
                 <button 
                   onClick={toggleFav}
                   className="absolute top-0 right-0 p-1 text-yellow-400 hover:bg-yellow-50 rounded-full transition-colors z-20"
                 >
-                  <Star className="w-8 h-8" filled={isFavorite} />
+                  <Star className="w-6 h-6" filled={isFavorite} />
                 </button>
 
-                <div className="flex items-baseline gap-4 mb-2">
-                    <span className="text-5xl font-bold text-primary-600">{word.hanzi}</span>
-                    <span className="text-2xl text-gray-400 font-serif">
+                <div className="flex items-baseline gap-3 mb-1">
+                    <span className="text-4xl font-bold text-primary-600">{word.hanzi}</span>
+                    <span className="text-xl text-gray-400 font-serif">
                         {word.traditional ? word.traditional : word.hanzi}
                     </span>
                 </div>
                 
-                <div className="flex flex-wrap items-center gap-3">
-                    <span className="text-xl font-medium text-gray-800 mr-2">[{word.pinyin}]</span>
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-lg font-medium text-gray-800 mr-2">[{word.pinyin}]</span>
                     {word.partOfSpeech && (
-                        <span className="text-sm bg-gray-100 text-gray-600 px-3 py-1 rounded-md border border-gray-200 uppercase tracking-wide">
+                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-md border border-gray-200">
                             {word.partOfSpeech}
                         </span>
                     )}
                      <button 
                         onClick={handleSpeech}
-                        className="ml-auto p-2 rounded-full text-gray-400 hover:text-primary-500 hover:bg-primary-50 transition-colors"
+                        className="ml-auto p-1.5 rounded-full text-gray-400 hover:text-primary-500 hover:bg-primary-50 transition-colors"
                         >
-                        <Volume2 className="w-6 h-6" />
+                        <Volume2 className="w-5 h-5" />
                     </button>
                 </div>
              </div>
             
             {/* Scrollable Content Section */}
-            <div className="flex-1 overflow-y-auto pr-2 space-y-6 custom-scrollbar">
+            <div className="flex-1 overflow-y-auto pr-2 space-y-5 no-scrollbar">
               
               {/* Thai Meanings */}
               {word.translationsThai && word.translationsThai.length > 0 && (
                   <div>
-                      <h4 className="text-xs font-bold text-gray-400 uppercase mb-3 tracking-wider">Thai Definition</h4>
-                      <ul className="space-y-2">
+                      <h4 className="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Thai Definition</h4>
+                      <ul className="space-y-1">
                         {word.translationsThai.map((t, i) => (
-                            <li key={i} className="text-xl text-gray-800 font-medium leading-snug flex items-start">
-                                <span className="text-primary-300 mr-3 mt-1.5 w-2 h-2 rounded-full bg-primary-300 block"></span>
+                            <li key={i} className="text-lg text-gray-800 font-medium leading-snug flex items-start">
+                                <span className="text-primary-300 mr-2">•</span>
                                 {t}
                             </li>
                         ))}
@@ -154,11 +154,11 @@ export const Flashcard: React.FC<FlashcardProps> = ({ word, isFavorite, onToggle
                {/* English Meanings (Fallback or Secondary) */}
                {(!word.translationsThai || word.translationsThai.length === 0) && (
                   <div>
-                      <h4 className="text-xs font-bold text-gray-400 uppercase mb-3 tracking-wider">Definition</h4>
-                       <ul className="space-y-2">
+                      <h4 className="text-xs font-bold text-gray-400 uppercase mb-2 tracking-wider">Definition</h4>
+                       <ul className="space-y-1">
                         {word.translations.map((t, i) => (
-                            <li key={i} className="text-xl text-gray-800 font-medium leading-snug flex items-start">
-                                <span className="text-primary-300 mr-3 mt-1.5 w-2 h-2 rounded-full bg-primary-300 block"></span>
+                            <li key={i} className="text-lg text-gray-800 font-medium leading-snug flex items-start">
+                                <span className="text-primary-300 mr-2">•</span>
                                 {t}
                             </li>
                         ))}
@@ -168,14 +168,14 @@ export const Flashcard: React.FC<FlashcardProps> = ({ word, isFavorite, onToggle
 
               {/* Examples */}
               {examples.length > 0 && (
-                  <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100">
-                      <div className="flex items-center gap-2 mb-3 text-primary-600">
-                         <BookOpen className="w-5 h-5" />
-                         <span className="text-xs font-bold uppercase tracking-wider">Examples</span>
+                  <div className="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                      <div className="flex items-center gap-2 mb-2 text-primary-600">
+                         <BookOpen className="w-4 h-4" />
+                         <span className="text-xs font-bold uppercase">Examples</span>
                       </div>
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                           {examples.map((ex, idx) => (
-                              <div key={idx} className="text-base text-gray-700 leading-relaxed border-l-4 border-primary-200 pl-4 py-1">
+                              <div key={idx} className="text-sm text-gray-700 leading-relaxed border-l-2 border-primary-200 pl-3">
                                   {ex}
                               </div>
                           ))}
@@ -185,19 +185,19 @@ export const Flashcard: React.FC<FlashcardProps> = ({ word, isFavorite, onToggle
 
               {/* AI Section */}
               {aiExplanation ? (
-                <div className="bg-primary-50 p-6 rounded-2xl text-left space-y-3 animate-fade-in border border-primary-100">
-                  <p className="font-bold text-primary-700 flex items-center gap-2">
-                      <Sparkles className="w-5 h-5" /> AI Tutor Note
+                <div className="bg-primary-50 p-4 rounded-xl text-left text-sm space-y-2 animate-fade-in border border-primary-100">
+                  <p className="font-semibold text-primary-700 flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" /> AI Note
                   </p>
-                  <p className="text-gray-700 leading-relaxed">{aiExplanation.nuance}</p>
+                  <p className="text-gray-700">{aiExplanation.nuance}</p>
                 </div>
               ) : (
                  <button 
                   onClick={handleAiExplain}
                   disabled={loadingAi}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-white border-2 border-primary-100 text-primary-600 rounded-2xl hover:bg-primary-50 hover:border-primary-200 transition-all font-bold group"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-white border border-primary-200 text-primary-600 rounded-xl hover:bg-primary-50 transition-all text-sm font-bold"
                 >
-                  {loadingAi ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform" />}
+                  {loadingAi ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                   <span>Ask AI Tutor for Nuance</span>
                 </button>
               )}
@@ -207,18 +207,18 @@ export const Flashcard: React.FC<FlashcardProps> = ({ word, isFavorite, onToggle
         </div>
       </div>
 
-      <div className="flex gap-4 mt-8 w-full max-w-sm">
+      <div className="flex gap-4 mt-6 w-full max-w-xs">
         <button 
           onClick={(e) => { e.stopPropagation(); onPrev(); }}
-          className="flex-1 py-4 rounded-xl bg-white border border-gray-200 text-gray-600 font-bold shadow-sm hover:bg-gray-50 hover:border-gray-300 active:scale-95 transition-all"
+          className="flex-1 py-4 rounded-2xl bg-white border border-gray-200 text-gray-600 font-medium shadow-sm hover:bg-gray-50 active:scale-95 transition-all"
         >
           Previous
         </button>
         <button 
           onClick={(e) => { e.stopPropagation(); onNext(); }}
-          className="flex-1 py-4 rounded-xl bg-primary-600 text-white font-bold shadow-lg shadow-primary-200 hover:bg-primary-700 active:scale-95 transition-all"
+          className="flex-1 py-4 rounded-2xl bg-primary-600 text-white font-bold shadow-lg shadow-primary-200 hover:bg-primary-700 active:scale-95 transition-all"
         >
-          Next Card
+          Next
         </button>
       </div>
     </div>

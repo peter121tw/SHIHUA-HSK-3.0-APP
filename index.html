@@ -2,8 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>新 HSK 3.0 生詞卡學習系統</title>
+    
+    <!-- PWA Setup -->
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="theme-color" content="#14b8a6" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="./logo.png" />
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -29,22 +37,36 @@
       }
     </script>
     <style>
-      /* Custom Scrollbar */
+      body {
+        -webkit-tap-highlight-color: transparent;
+        overscroll-behavior-y: none;
+      }
+      
+      /* Custom Green Scrollbar */
       ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
+        width: 6px;
+        height: 6px;
       }
       ::-webkit-scrollbar-track {
         background: transparent;
       }
       ::-webkit-scrollbar-thumb {
-        background-color: #cbd5e1;
-        border-radius: 4px;
+        background-color: #9abead; /* Low contrast greenish tint blending with #a4cab6 */
+        border-radius: 9999px;
       }
       ::-webkit-scrollbar-thumb:hover {
-        background-color: #94a3b8;
+        background-color: #7d9c8b;
       }
 
+      /* Hide scrollbar utility */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      
       .card-flip {
         perspective: 1000px;
       }
@@ -83,8 +105,7 @@
 }
 </script>
 </head>
-  <body class="bg-gray-50 text-gray-900 min-h-screen selection:bg-primary-100 font-sans">
-    <div id="root" class="min-h-screen w-full"></div>
-    <script type="module" src="./index.tsx"></script>
+  <body class="bg-[#a4cab6] text-gray-900 h-[100dvh] overflow-hidden selection:bg-primary-100">
+    <div id="root" class="h-full w-full"></div>
   </body>
 </html>
