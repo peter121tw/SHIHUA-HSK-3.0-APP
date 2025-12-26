@@ -145,53 +145,104 @@ const App = () => {
     setViewMode(targetGame);
   };
 
+  // --- Components for Web Layout ---
+
+  const Header = () => (
+    <div className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center gap-4 cursor-pointer" onClick={() => { setViewMode('home'); setSelectedLevel(null); setSearchTerm(''); }}>
+             <img src="https://raw.githubusercontent.com/peter121tw/SHIHUA-HSK-3.0-APP/main/logo.png" alt="Logo" className="w-10 h-10 object-contain" />
+             <h1 className="text-xl font-extrabold text-gray-800 tracking-tight hidden sm:block">新 HSK 3.0 <span className="text-primary-500 text-sm font-normal">Learning System</span></h1>
+          </div>
+          
+          <div className="flex-1 max-w-lg mx-8 hidden md:block">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-5 w-5 text-gray-400" />
+              </div>
+              <input 
+                  type="text"
+                  placeholder="Search across all levels..."
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-xl leading-5 bg-gray-50 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm transition-all"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    if (viewMode !== 'home' && e.target.value) {
+                       // Optional: If searching from a game, maybe stay? 
+                       // For simplicity, search forces a context switch or global search if desired.
+                       // Here we allow local filtering if in a list, or global if in home.
+                    }
+                  }}
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+             {selectedLevel && (
+                <button onClick={handleBack} className="text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center gap-1">
+                   <ArrowLeft className="w-4 h-4" /> Back
+                </button>
+             )}
+             <button 
+                onClick={() => handleLevelSelect('favorites')}
+                className="p-2 text-yellow-500 hover:bg-yellow-50 rounded-full transition-colors relative"
+             >
+                <Star filled className="w-6 h-6" />
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                    {favorites.length}
+                </span>
+             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderHome = () => (
-    <div className="p-6 pt-8 flex flex-col items-center h-full">
-      <div className="w-full max-w-md mb-6 relative shrink-0">
-         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Mobile Search Bar (Visible only on small screens) */}
+      <div className="md:hidden mb-6">
+         <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+               <Search className="h-5 w-5 text-gray-400" />
+            </div>
+            <input 
+               type="text"
+               placeholder="Search..."
+               className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-xl bg-white shadow-sm focus:ring-primary-500 focus:border-primary-500"
+               value={searchTerm}
+               onChange={(e) => setSearchTerm(e.target.value)}
+            />
          </div>
-         <input 
-            type="text"
-            placeholder="Search Hanzi, Pinyin (no tone), English..."
-            className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-2xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 sm:text-sm shadow-sm transition-all"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-         />
       </div>
 
       {isGlobalSearch ? (
-        <div className="flex-1 w-full max-w-md overflow-y-auto bg-white rounded-3xl shadow-sm border border-gray-100 min-h-0">
-           <div className="p-4 border-b border-gray-50 flex justify-between items-center sticky top-0 bg-white">
-             <h3 className="font-bold text-gray-700">Search Results ({currentWords.length})</h3>
-             <button onClick={() => setSearchTerm('')} className="text-sm text-primary-500">Clear</button>
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden min-h-[50vh]">
+           <div className="p-4 border-b border-gray-50 flex justify-between items-center bg-gray-50/50">
+             <h3 className="font-bold text-gray-700">Global Search Results ({currentWords.length})</h3>
+             <button onClick={() => setSearchTerm('')} className="text-sm text-primary-500 font-medium hover:text-primary-700">Clear Search</button>
            </div>
            {currentWords.length === 0 ? (
-             <div className="p-8 text-center text-gray-400">No words found.</div>
+             <div className="p-12 text-center text-gray-400 flex flex-col items-center">
+                <Search className="w-12 h-12 mb-4 opacity-20" />
+                No words found matching "{searchTerm}"
+             </div>
            ) : (
-             <div>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 divide-y md:divide-y-0 md:gap-4 p-0 md:p-4">
                 {currentWords.slice(0, 100).map((word, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-4 border-b border-gray-50 hover:bg-gray-50">
+                  <div key={idx} className="flex items-center justify-between p-4 bg-white md:border md:rounded-xl md:shadow-sm hover:border-primary-300 transition-all group">
                      <div>
-                        <div className="font-bold text-gray-800 flex items-center gap-2">
+                        <div className="font-bold text-gray-800 flex items-center gap-2 text-lg">
                             {word.hanzi} 
-                            <span className="text-xs text-primary-500 bg-primary-50 px-2 py-0.5 rounded-full">HSK {word.level}</span>
+                            <span className="text-xs text-primary-600 bg-primary-50 px-2 py-0.5 rounded-full border border-primary-100">HSK {word.level}</span>
                         </div>
-                        <div className="text-sm text-gray-400 flex items-center gap-2">
-                            <span>{word.pinyin}</span>
-                            {word.partOfSpeech && (
-                                <span className="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded text-[10px] border border-gray-200">
-                                    {word.partOfSpeech}
-                                </span>
-                            )}
-                        </div>
+                        <div className="text-sm text-gray-500 mt-1">{word.pinyin}</div>
                      </div>
-                     <div className="text-right max-w-[120px] sm:max-w-[180px]">
-                        <div className="text-sm text-gray-600 break-words whitespace-normal leading-tight">
-                            {(word.translationsThai && word.translationsThai.length > 0)
-                                ? word.translationsThai.join(', ')
-                                : word.translations.join(', ')}
-                        </div>
+                     <div className="text-right text-sm text-gray-600 max-w-[50%]">
+                        {(word.translationsThai && word.translationsThai.length > 0)
+                                ? word.translationsThai[0]
+                                : word.translations[0]}
                      </div>
                   </div>
                 ))}
@@ -200,50 +251,49 @@ const App = () => {
         </div>
       ) : (
         <>
-          <div className="mb-4 text-center shrink-0">
-            <img src="./logo.png" alt="HSK Logo" className="w-32 h-32 mx-auto mb-2 object-contain" />
-            <h1 className="text-3xl font-extrabold text-gray-600 mb-1 tracking-tight">新 HSK 3.0 生詞卡學習系統<span className="text-primary-400"></span></h1>
-            <p className="text-gray-400 text-sm">專業的 HSK 3.0 生詞學習平台</p>
-            <p className="text-gray-400 text-xs mt-1">V.202512250900</p>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-800 mb-3">Master HSK Vocabulary</h2>
+            <p className="text-gray-500 max-w-2xl mx-auto text-lg">Select a level to start learning, practicing, and playing games with the new HSK 3.0 standard.</p>
           </div>
           
           {loading ? (
-             <div className="flex flex-col items-center justify-center flex-1">
-                <RefreshCw className="w-10 h-10 text-primary-500 animate-spin mb-4" />
-                <span className="text-gray-500">Loading Vocabulary...</span>
+             <div className="flex flex-col items-center justify-center py-20">
+                <RefreshCw className="w-12 h-12 text-primary-500 animate-spin mb-4" />
+                <span className="text-gray-500 font-medium">Syncing Vocabulary Database...</span>
              </div>
           ) : (
-            <div className="flex-1 w-full max-w-md min-h-0 overflow-y-auto no-scrollbar pb-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <button
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {/* Favorites Card */}
+                <button
                     onClick={() => handleLevelSelect('favorites')}
-                    className="col-span-2 relative group overflow-hidden bg-gradient-to-r from-yellow-50 to-orange-50 p-6 rounded-3xl shadow-sm border border-yellow-100 hover:shadow-lg transition-all active:scale-95 flex items-center justify-between"
+                    className="col-span-1 sm:col-span-2 md:col-span-1 relative group overflow-hidden bg-gradient-to-br from-yellow-50 to-orange-50 p-6 rounded-3xl shadow-sm border border-yellow-100 hover:shadow-lg hover:scale-[1.02] transition-all flex flex-col justify-between h-48"
                   >
-                    <div className="text-left">
-                        <div className="text-2xl font-bold text-gray-800 mb-1 flex items-center gap-2">
-                        <Star className="w-6 h-6 text-yellow-500" filled />
-                        Favorites
+                    <div className="flex justify-between items-start">
+                        <div className="p-3 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm">
+                            <Star className="w-8 h-8 text-yellow-500" filled />
                         </div>
-                        <div className="text-sm text-gray-500 font-medium">{favorites.length} Saved Words</div>
+                        <div className="text-3xl font-black text-yellow-600/20">{favorites.length}</div>
                     </div>
-                    <div className="h-10 w-10 bg-white rounded-full flex items-center justify-center shadow-sm">
-                        <ArrowLeft className="w-5 h-5 text-yellow-500 rotate-180" />
+                    <div className="text-left">
+                        <div className="text-2xl font-bold text-gray-800 mb-1">Favorites</div>
+                        <div className="text-sm text-gray-600 font-medium">Your saved collection</div>
                     </div>
-                  </button>
+                </button>
 
-                  {Object.values(HSKLevel).map((level) => {
+                {Object.values(HSKLevel).map((level) => {
                     const count = data[level]?.length || 0;
                     return (
                       <button
                         key={level}
                         onClick={() => handleLevelSelect(level)}
                         disabled={count === 0}
-                        className="relative group overflow-hidden bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-lg hover:border-primary-200 transition-all active:scale-95 disabled:opacity-50 aspect-square flex flex-col justify-between"
+                        className="relative group overflow-hidden bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-xl hover:border-primary-200 hover:-translate-y-1 transition-all disabled:opacity-50 h-48 flex flex-col justify-between"
                       >
-                        <div className="flex justify-end">
-                          <div className="p-2 bg-primary-50 rounded-2xl opacity-80 group-hover:opacity-100 transition-opacity">
-                            <Layers className="w-8 h-8 text-primary-500" />
-                          </div>
+                        <div className="flex justify-between items-start">
+                             <div className="p-3 bg-primary-50 rounded-2xl text-primary-500 group-hover:bg-primary-500 group-hover:text-white transition-colors">
+                                <Layers className="w-8 h-8" />
+                             </div>
+                             <span className="text-xs font-bold text-gray-300 uppercase tracking-wider">Level</span>
                         </div>
                         <div className="text-left">
                           <div className="text-3xl font-bold text-gray-800 mb-1">HSK {level}</div>
@@ -252,7 +302,6 @@ const App = () => {
                       </button>
                     );
                   })}
-                </div>
             </div>
           )}
         </>
@@ -261,258 +310,235 @@ const App = () => {
   );
 
   const renderLevelDashboard = () => (
-    <div className="flex flex-col h-full bg-gray-50 relative">
-      <div className="px-6 py-6 bg-white shadow-sm z-10 sticky top-0 flex flex-col gap-4 shrink-0">
-        <div className="flex items-center justify-between">
-            <button onClick={handleBack} className="p-2 -ml-2 rounded-full hover:bg-gray-100">
-            <ArrowLeft className="w-6 h-6 text-gray-600" />
-            </button>
-            <h2 className="text-xl font-bold text-gray-800">
-              {selectedLevel === 'favorites' ? 'My Favorites' : `HSK Level ${selectedLevel}`}
-            </h2>
-            <div className="w-10"></div>
-        </div>
-        
-         <div className="relative">
-             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-gray-400" />
-             </div>
-             <input 
-                type="text"
-                placeholder={`Search in ${selectedLevel === 'favorites' ? 'favorites' : 'level ' + selectedLevel}...`}
-                className="block w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white text-sm focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-500 transition-all"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-             />
-        </div>
-      </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-[calc(100vh-64px)] flex flex-col md:flex-row gap-6">
+       
+       {/* Sidebar / Top Section for Controls */}
+       <div className="md:w-64 lg:w-80 flex-shrink-0 flex flex-col gap-4">
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+             <h2 className="text-2xl font-bold text-gray-800 mb-1">{selectedLevel === 'favorites' ? 'Favorites' : `HSK ${selectedLevel}`}</h2>
+             <p className="text-gray-400 text-sm mb-4">{currentWords.length} words loaded</p>
+             
+             <div className="relative mb-4">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search className="h-4 w-4 text-gray-400" />
+                </div>
+                <input 
+                    type="text"
+                    placeholder="Filter list..."
+                    className="block w-full pl-9 pr-3 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:bg-white text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 transition-all"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+          </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
-        {/* Practice Arcade Menu */}
-        {currentWords.length > 0 && (
-          <div>
-              <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-3 px-2">Practice Arcade</h3>
-              <div className="grid grid-cols-2 gap-3">
-                 <button 
-                    onClick={() => initiateGameSetup('quiz')}
+          <div className="bg-white p-4 rounded-3xl shadow-sm border border-gray-100 flex-1 overflow-y-auto min-h-0">
+             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Study & Games</h3>
+             <div className="grid grid-cols-2 md:grid-cols-1 gap-3">
+                 <GameButton 
+                    icon={<BrainCircuit />} 
+                    title="Quiz Mode" 
+                    desc="Standard Test" 
+                    color="orange" 
+                    onClick={() => initiateGameSetup('quiz')} 
                     disabled={currentWords.length < 4}
-                    className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all text-left flex flex-col gap-2 disabled:opacity-50"
-                 >
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center text-orange-600">
-                        <BrainCircuit className="w-5 h-5" />
-                    </div>
-                    <div>
-                        <div className="font-bold text-gray-800">Quiz Mode</div>
-                        <div className="text-xs text-gray-400">Standard test</div>
-                    </div>
-                 </button>
-
-                 <button 
-                    onClick={() => initiateGameSetup('speed')}
+                 />
+                 <GameButton 
+                    icon={<Timer />} 
+                    title="Speed Run" 
+                    desc="60s Challenge" 
+                    color="yellow" 
+                    onClick={() => initiateGameSetup('speed')} 
                     disabled={currentWords.length < 4}
-                    className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all text-left flex flex-col gap-2 disabled:opacity-50"
-                 >
-                    <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-yellow-600">
-                        <Timer className="w-5 h-5" />
-                    </div>
-                    <div>
-                        <div className="font-bold text-gray-800">Speed Run</div>
-                        <div className="text-xs text-gray-400">60s Challenge</div>
-                    </div>
-                 </button>
-
-                 <button 
-                    onClick={() => setViewMode('match')}
+                 />
+                 <GameButton 
+                    icon={<Grid />} 
+                    title="Match Game" 
+                    desc="Flip Cards" 
+                    color="blue" 
+                    onClick={() => setViewMode('match')} 
                     disabled={currentWords.length < 6}
-                    className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all text-left flex flex-col gap-2 disabled:opacity-50"
-                 >
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600">
-                        <Grid className="w-5 h-5" />
-                    </div>
-                    <div>
-                        <div className="font-bold text-gray-800">Match Game</div>
-                        <div className="text-xs text-gray-400">Flip cards</div>
-                    </div>
-                 </button>
-
-                 <button 
-                    onClick={() => initiateGameSetup('write')}
+                 />
+                 <GameButton 
+                    icon={<Edit3 />} 
+                    title="Write It" 
+                    desc="Type Meaning" 
+                    color="purple" 
+                    onClick={() => initiateGameSetup('write')} 
                     disabled={currentWords.length < 5}
-                    className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all text-left flex flex-col gap-2 disabled:opacity-50"
+                 />
+                 <GameButton 
+                    icon={<Type />} 
+                    title="Pinyin Master" 
+                    desc="Reverse Lookup" 
+                    color="teal" 
+                    onClick={() => setViewMode('pinyin')} 
+                    disabled={currentWords.length < 4}
+                 />
+                 <GameButton 
+                    icon={<FileText />} 
+                    title="Sentence Fill" 
+                    desc="Context Practice" 
+                    color="indigo" 
+                    onClick={() => initiateGameSetup('sentence')} 
+                    disabled={currentWords.filter(w => w.sheetExample).length < 4}
+                 />
+                  <button 
+                    onClick={() => setViewMode('hunter')}
+                    className="p-3 bg-gray-900 rounded-xl text-white shadow-md hover:shadow-lg hover:scale-[1.02] transition-all text-left flex items-center gap-3 col-span-2 md:col-span-1 group"
                  >
-                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
-                        <Edit3 className="w-5 h-5" />
+                    <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center group-hover:bg-white/20">
+                        <Camera className="w-5 h-5" />
                     </div>
                     <div>
-                        <div className="font-bold text-gray-800">Write It</div>
-                        <div className="text-xs text-gray-400">Type meaning</div>
+                        <div className="font-bold text-sm">Vocab Hunter</div>
+                        <div className="text-[10px] text-gray-400">AR Camera</div>
                     </div>
                  </button>
                  
-                 <button 
-                    onClick={() => setViewMode('pinyin')}
-                    disabled={currentWords.length < 4}
-                    className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all text-left flex flex-row items-center gap-4 disabled:opacity-50"
-                 >
-                    <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-600">
-                        <Type className="w-5 h-5" />
-                    </div>
-                    <div>
-                        <div className="font-bold text-gray-800">Pinyin Master</div>
-                        <div className="text-xs text-gray-400">Reverse lookup</div>
-                    </div>
-                 </button>
-
-                 <button 
-                    onClick={() => initiateGameSetup('sentence')}
-                    disabled={currentWords.filter(w => w.sheetExample).length < 4}
-                    className="p-4 bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all text-left flex flex-row items-center gap-4 disabled:opacity-50"
-                 >
-                    <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600">
-                        <FileText className="w-5 h-5" />
-                    </div>
-                    <div>
-                        <div className="font-bold text-gray-800">Sentence Fill</div>
-                        <div className="text-xs text-gray-400">Context practice</div>
-                    </div>
-                 </button>
-
-                 {/* New Vocab Hunter Button */}
-                 <button 
-                    onClick={() => setViewMode('hunter')}
-                    className="p-4 bg-gradient-to-br from-gray-800 to-black rounded-2xl shadow-md border border-gray-700 hover:shadow-lg transition-all text-left flex flex-row items-center gap-4 col-span-2 group"
-                 >
-                    <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                        <Camera className="w-6 h-6" />
-                    </div>
-                    <div>
-                        <div className="font-bold text-white text-lg">Vocab Hunter</div>
-                        <div className="text-xs text-gray-400">Scan & Unlock Culture</div>
-                    </div>
-                 </button>
-              </div>
-
-              <div className="mt-4">
                   <button 
                     onClick={() => setViewMode('flashcard')}
-                    className="w-full flex items-center p-4 bg-gradient-to-r from-primary-500 to-teal-600 rounded-2xl shadow-lg text-white transform active:scale-98 transition-all"
+                    className="p-3 bg-gradient-to-r from-primary-500 to-teal-600 rounded-xl text-white shadow-md hover:shadow-lg hover:scale-[1.02] transition-all text-left flex items-center gap-3 col-span-2 md:col-span-1 mt-2"
                   >
-                    <div className="p-2 bg-white/20 rounded-xl mr-4">
-                    <Layers className="w-6 h-6 text-white" />
+                    <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                        <Layers className="w-5 h-5" />
                     </div>
-                    <div className="text-left">
-                    <div className="font-bold text-lg">Study Flashcards</div>
-                    <div className="opacity-90 text-xs">Review all words</div>
+                    <div>
+                        <div className="font-bold text-sm">Flashcards</div>
+                        <div className="text-[10px] text-white/80">Study Mode</div>
                     </div>
-                </button>
-              </div>
+                 </button>
+             </div>
           </div>
-        )}
+       </div>
 
-        <div className="mt-6 pb-20">
-          <h3 className="text-lg font-bold text-gray-800 mb-4 px-2">Word List {searchTerm && `(${currentWords.length})`}</h3>
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
-            {currentWords.length === 0 ? (
-                <div className="p-8 text-center text-gray-400">
-                    {selectedLevel === 'favorites' ? 'No favorites yet.' : 'No words found.'}
+       {/* Main List Area */}
+       <div className="flex-1 bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col min-h-0">
+          <div className="p-4 border-b border-gray-100 bg-gray-50/50">
+             <h3 className="font-bold text-gray-700">Word List</h3>
+          </div>
+          <div className="flex-1 overflow-y-auto p-0">
+             {currentWords.length === 0 ? (
+                <div className="p-10 text-center text-gray-400">
+                    No words found.
                 </div>
             ) : (
-                <>
-                    {currentWords.slice(0, 100).map((word, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-4 border-b border-gray-50 last:border-0 hover:bg-gray-50 group">
-                        <div className="flex-1">
-                            <div className="font-bold text-gray-800 text-lg flex items-center gap-2">
-                                {word.hanzi}
-                                {word.traditional && word.traditional !== word.hanzi && (
-                                   <span className="text-gray-400 text-base font-normal">({word.traditional})</span>
-                                )}
-                            </div>
-                            <div className="text-sm text-gray-400 flex gap-2 items-center">
-                              <span>{word.pinyin}</span>
-                              {word.partOfSpeech && <span className="bg-gray-100 px-1.5 py-0.5 rounded text-[10px] border border-gray-200">{word.partOfSpeech}</span>}
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="text-right max-w-[120px] sm:max-w-[200px]">
-                                <div className="text-sm text-gray-600 break-words whitespace-normal leading-tight">
-                                    {(word.translationsThai && word.translationsThai.length > 0)
-                                        ? word.translationsThai.join(', ')
-                                        : word.translations.join(', ')}
+                <div className="divide-y divide-gray-50">
+                    {currentWords.map((word, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-4 hover:bg-gray-50 group transition-colors">
+                        <div className="flex items-start gap-4">
+                            <div className="w-10 text-xs text-gray-300 font-mono pt-1.5 text-right hidden sm:block">{idx + 1}</div>
+                            <div>
+                                <div className="font-bold text-gray-800 text-xl flex items-center gap-2">
+                                    {word.hanzi}
+                                    {word.traditional && word.traditional !== word.hanzi && (
+                                    <span className="text-gray-400 text-base font-normal">({word.traditional})</span>
+                                    )}
+                                </div>
+                                <div className="text-sm text-gray-500 flex gap-2 items-center mt-0.5">
+                                    <span className="font-medium text-primary-600">{word.pinyin}</span>
+                                    {word.partOfSpeech && <span className="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded text-[10px] border border-gray-200 uppercase tracking-wider">{word.partOfSpeech}</span>}
                                 </div>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <button 
-                                  onClick={(e) => { e.stopPropagation(); toggleFavorite(word); }}
-                                  className="p-2 rounded-full hover:bg-gray-100 active:scale-90 transition-transform"
-                              >
-                                  <Star className={`w-5 h-5 ${favorites.includes(word.id!) ? 'text-yellow-400' : 'text-gray-200'}`} filled={favorites.includes(word.id!)} />
-                              </button>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-right text-sm text-gray-600 max-w-[200px] md:max-w-[300px] hidden sm:block">
+                                {(word.translationsThai && word.translationsThai.length > 0)
+                                    ? word.translationsThai.join(', ')
+                                    : word.translations.join(', ')}
                             </div>
+                            <button 
+                                onClick={(e) => { e.stopPropagation(); toggleFavorite(word); }}
+                                className="p-2 rounded-full hover:bg-gray-100 active:scale-90 transition-transform"
+                            >
+                                <Star className={`w-5 h-5 ${favorites.includes(word.id!) ? 'text-yellow-400' : 'text-gray-200'}`} filled={favorites.includes(word.id!)} />
+                            </button>
                         </div>
                     </div>
                     ))}
-                    {currentWords.length > 100 && (
-                    <div className="p-4 text-center text-gray-400 text-sm italic">
-                        And {currentWords.length - 100} more...
-                    </div>
-                    )}
-                </>
+                </div>
             )}
           </div>
-        </div>
-      </div>
+       </div>
     </div>
   );
 
+  const GameButton = ({ icon, title, desc, color, onClick, disabled }: any) => {
+     const colors: any = {
+         orange: "bg-orange-50 text-orange-600 group-hover:bg-orange-500 group-hover:text-white",
+         yellow: "bg-yellow-50 text-yellow-600 group-hover:bg-yellow-500 group-hover:text-white",
+         blue: "bg-blue-50 text-blue-600 group-hover:bg-blue-500 group-hover:text-white",
+         purple: "bg-purple-50 text-purple-600 group-hover:bg-purple-500 group-hover:text-white",
+         teal: "bg-teal-50 text-teal-600 group-hover:bg-teal-500 group-hover:text-white",
+         indigo: "bg-indigo-50 text-indigo-600 group-hover:bg-indigo-500 group-hover:text-white",
+     };
+
+     return (
+        <button 
+            onClick={onClick}
+            disabled={disabled}
+            className="p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:shadow-md hover:border-gray-200 transition-all text-left flex items-center gap-3 disabled:opacity-50 group"
+        >
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${colors[color]}`}>
+                {React.cloneElement(icon, { className: "w-5 h-5" })}
+            </div>
+            <div>
+                <div className="font-bold text-gray-800 text-sm">{title}</div>
+                <div className="text-[10px] text-gray-400">{desc}</div>
+            </div>
+        </button>
+     )
+  }
+
   const renderGameContainer = (children: React.ReactNode) => (
-      <div className="h-full flex flex-col">
-          <div className="px-4 py-4 shrink-0">
-            <button onClick={() => setViewMode('list')} className="p-2 rounded-full bg-white shadow-sm border border-gray-100 w-fit">
-                <ArrowLeft className="w-5 h-5" />
+      <div className="flex flex-col h-[calc(100vh-64px)] bg-gray-50">
+          <div className="max-w-7xl w-full mx-auto px-4 py-4 shrink-0 flex items-center">
+            <button onClick={() => setViewMode('list')} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white shadow-sm border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium transition-all">
+                <ArrowLeft className="w-4 h-4" />
+                <span>Exit Activity</span>
             </button>
           </div>
-          <div className="flex-1 overflow-hidden">
+          <div className="flex-1 w-full max-w-4xl mx-auto px-4 pb-8 min-h-0 flex flex-col">
              {children}
           </div>
       </div>
   );
 
   const renderGameSetup = () => {
-    // Determine actual available words based on the game type criteria
     const availableCount = targetGame === 'sentence' 
         ? currentWords.filter(w => w.sheetExample && w.sheetExample.includes(w.hanzi)).length
         : currentWords.length;
 
     return (
-      <div className="flex flex-col items-center justify-center h-full p-8 text-center animate-fade-in overflow-y-auto min-h-0">
-        <div className="bg-primary-100 p-6 rounded-full mb-6 shrink-0">
-           {targetGame === 'quiz' && <BrainCircuit className="w-12 h-12 text-primary-600" />}
-           {targetGame === 'speed' && <Timer className="w-12 h-12 text-primary-600" />}
-           {targetGame === 'write' && <Edit3 className="w-12 h-12 text-primary-600" />}
-           {targetGame === 'sentence' && <FileText className="w-12 h-12 text-primary-600" />}
+      <div className="flex flex-col items-center justify-center flex-1 bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-16 animate-fade-in">
+        <div className="bg-primary-50 p-6 rounded-full mb-6 shrink-0 ring-8 ring-primary-50/50">
+           {targetGame === 'quiz' && <BrainCircuit className="w-16 h-16 text-primary-600" />}
+           {targetGame === 'speed' && <Timer className="w-16 h-16 text-primary-600" />}
+           {targetGame === 'write' && <Edit3 className="w-16 h-16 text-primary-600" />}
+           {targetGame === 'sentence' && <FileText className="w-16 h-16 text-primary-600" />}
         </div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+        <h2 className="text-4xl font-extrabold text-gray-800 mb-2">
             {targetGame === 'quiz' && 'Quiz Mode'}
             {targetGame === 'speed' && 'Speed Run'}
             {targetGame === 'write' && 'Write It'}
             {targetGame === 'sentence' && 'Sentence Fill'}
         </h2>
-        <p className="text-gray-500 mb-8">How many words would you like to practice?</p>
+        <p className="text-gray-500 mb-8 text-lg">Select the number of words to practice</p>
         
-        <div className="grid grid-cols-2 gap-4 w-full max-w-xs mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-2xl mb-8">
             {[5, 10, 20].map(count => (
                 <button
                     key={count}
                     onClick={() => startGameWithCount(count)}
                     disabled={availableCount < count}
-                    className="py-4 rounded-xl bg-white border-2 border-gray-200 text-gray-700 font-bold text-lg hover:border-primary-500 hover:text-primary-600 active:bg-primary-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="py-6 rounded-2xl bg-white border-2 border-gray-100 text-gray-700 font-bold text-xl hover:border-primary-500 hover:text-primary-600 hover:shadow-lg active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     {count}
                 </button>
             ))}
             <button
                 onClick={() => startGameWithCount('all')}
-                className="py-4 rounded-xl bg-primary-600 border-2 border-primary-600 text-white font-bold text-lg hover:bg-primary-700 active:scale-95 transition-all"
+                className="py-6 rounded-2xl bg-primary-600 border-2 border-primary-600 text-white font-bold text-xl hover:bg-primary-700 hover:shadow-lg active:scale-95 transition-all"
             >
                 All ({availableCount})
             </button>
@@ -520,9 +546,9 @@ const App = () => {
 
         <button 
             onClick={() => setViewMode('list')}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 underline underline-offset-4"
         >
-            Cancel
+            Cancel and go back
         </button>
       </div>
     );
@@ -535,10 +561,11 @@ const App = () => {
       case 'game_setup': return renderGameContainer(renderGameSetup());
       case 'flashcard':
         return (
-          <div className="h-full flex flex-col">
-             <div className="px-4 py-4 flex items-center justify-between shrink-0">
-                <button onClick={() => setViewMode('list')} className="p-2 rounded-full bg-white shadow-sm border border-gray-100">
-                  <ArrowLeft className="w-5 h-5" />
+          <div className="flex flex-col h-[calc(100vh-64px)]">
+             <div className="max-w-7xl w-full mx-auto px-4 py-4 shrink-0 flex items-center justify-between">
+                <button onClick={() => setViewMode('list')} className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white shadow-sm border border-gray-200 hover:bg-gray-50 text-gray-700 font-medium transition-all">
+                    <ArrowLeft className="w-4 h-4" />
+                    <span className="hidden sm:inline">Back to List</span>
                 </button>
                 <div className="flex flex-col items-center">
                     <span className="font-mono text-gray-800 font-bold text-lg">
@@ -546,9 +573,9 @@ const App = () => {
                     </span>
                     <span className="text-xs text-gray-400 uppercase tracking-widest">Card</span>
                 </div>
-                <div className="w-10"></div>
+                <div className="w-24"></div> 
              </div>
-             <div className="flex-1">
+             <div className="flex-1 w-full max-w-2xl mx-auto px-4 pb-8 min-h-0">
                 {currentWords.length > 0 && (
                   <Flashcard 
                     word={currentWords[flashcardIndex]} 
@@ -628,8 +655,11 @@ const App = () => {
   };
 
   return (
-    <div className="w-full h-full max-w-md mx-auto bg-gray-50 sm:border-x border-gray-200 shadow-2xl relative">
-       {renderContent()}
+    <div className="w-full min-h-screen bg-gray-50 flex flex-col font-sans">
+       <Header />
+       <div className="flex-1 relative">
+         {renderContent()}
+       </div>
     </div>
   );
 };

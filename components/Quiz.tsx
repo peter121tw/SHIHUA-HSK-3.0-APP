@@ -114,7 +114,7 @@ export const Quiz: React.FC<QuizProps> = ({ words, onFinish, favorites, onToggle
       );
   }
 
-  if (!currentWord) return <div className="p-8 text-center">Loading Quiz...</div>;
+  if (!currentWord) return <div className="p-8 text-center text-gray-500">Loading Quiz...</div>;
 
   const isOptionCorrect = (optStr: string) => {
      const validMeanings = (currentWord.translationsThai && currentWord.translationsThai.length > 0) 
@@ -124,62 +124,66 @@ export const Quiz: React.FC<QuizProps> = ({ words, onFinish, favorites, onToggle
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto p-6 h-full">
-      <div className="w-full flex justify-between items-center mb-8">
-        <div className="text-sm font-medium text-gray-400">Question {currentIndex + 1} / {quizSet.length}</div>
-        <div className="text-sm font-bold text-primary-600">Score: {score}</div>
+    <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto p-0 md:p-8 h-full">
+      <div className="w-full flex justify-between items-center mb-6">
+        <div className="text-gray-400 font-medium">Question {currentIndex + 1} / {quizSet.length}</div>
+        <div className="px-4 py-1 bg-primary-50 text-primary-600 rounded-full font-bold text-sm">Score: {score}</div>
       </div>
 
-      <div className="w-full bg-white p-10 rounded-3xl shadow-lg border border-gray-100 text-center mb-8">
-        <div className="text-6xl font-bold text-gray-800 mb-4">{currentWord.hanzi}</div>
-        
-        {showPinyin ? (
-          <div className="text-xl text-primary-600 font-medium mb-2 animate-fade-in">{currentWord.pinyin}</div>
-        ) : (
-          <button 
-            onClick={() => setShowPinyin(true)}
-            className="mb-2 px-4 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-500 text-xs font-bold uppercase tracking-wider rounded-lg transition-colors"
-          >
-            Show Pinyin
-          </button>
-        )}
-
-        {currentWord.partOfSpeech && (
-           <span className="inline-block bg-gray-100 text-gray-500 text-sm px-3 py-1 rounded-full mt-1">{currentWord.partOfSpeech}</span>
-        )}
-      </div>
-
-      <div className="w-full space-y-3">
-        {options.map((opt, idx) => {
-          let btnClass = "w-full py-4 px-6 rounded-xl border-2 text-left font-medium transition-all transform active:scale-98 ";
-          
-          if (selectedOption !== null) {
-            if (isOptionCorrect(opt)) {
-              btnClass += "bg-green-100 border-green-500 text-green-700";
-            } else if (idx === selectedOption) {
-              btnClass += "bg-red-100 border-red-500 text-red-700";
-            } else {
-              btnClass += "bg-gray-50 border-gray-100 text-gray-400";
-            }
-          } else {
-            btnClass += "bg-white border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50";
-          }
-
-          return (
+      <div className="flex flex-col md:flex-row gap-8 w-full items-stretch">
+        {/* Question Card */}
+        <div className="flex-1 bg-white p-10 rounded-3xl shadow-sm border border-gray-100 text-center flex flex-col justify-center items-center min-h-[300px]">
+            <div className="text-7xl md:text-8xl font-bold text-gray-800 mb-6">{currentWord.hanzi}</div>
+            
+            {showPinyin ? (
+            <div className="text-2xl text-primary-600 font-medium mb-3 animate-fade-in">{currentWord.pinyin}</div>
+            ) : (
             <button 
-              key={idx}
-              onClick={() => handleAnswer(idx)}
-              disabled={selectedOption !== null}
-              className={btnClass}
+                onClick={() => setShowPinyin(true)}
+                className="mb-3 px-5 py-2 bg-gray-50 hover:bg-gray-100 text-gray-500 text-sm font-bold uppercase tracking-wider rounded-lg transition-colors border border-gray-200"
             >
-              <div className="flex items-center justify-between">
-                <span>{opt}</span>
-                {selectedOption !== null && isOptionCorrect(opt) && <Check className="w-5 h-5 text-green-600" />}
-                {selectedOption === idx && !isOptionCorrect(opt) && <X className="w-5 h-5 text-red-600" />}
-              </div>
+                Reveal Pinyin
             </button>
-          );
-        })}
+            )}
+
+            {currentWord.partOfSpeech && (
+            <span className="inline-block bg-gray-100 text-gray-500 text-sm px-4 py-1 rounded-full mt-2 uppercase tracking-wide border border-gray-200">{currentWord.partOfSpeech}</span>
+            )}
+        </div>
+
+        {/* Options */}
+        <div className="flex-1 flex flex-col justify-center gap-3">
+            {options.map((opt, idx) => {
+            let btnClass = "w-full py-5 px-6 rounded-2xl border-2 text-left font-medium transition-all transform active:scale-[0.98] text-lg ";
+            
+            if (selectedOption !== null) {
+                if (isOptionCorrect(opt)) {
+                btnClass += "bg-green-50 border-green-500 text-green-700 shadow-md";
+                } else if (idx === selectedOption) {
+                btnClass += "bg-red-50 border-red-500 text-red-700";
+                } else {
+                btnClass += "bg-white border-gray-100 text-gray-300 opacity-50";
+                }
+            } else {
+                btnClass += "bg-white border-gray-200 text-gray-700 hover:border-primary-400 hover:bg-primary-50 hover:shadow-sm";
+            }
+
+            return (
+                <button 
+                key={idx}
+                onClick={() => handleAnswer(idx)}
+                disabled={selectedOption !== null}
+                className={btnClass}
+                >
+                <div className="flex items-center justify-between">
+                    <span>{opt}</span>
+                    {selectedOption !== null && isOptionCorrect(opt) && <Check className="w-6 h-6 text-green-600" />}
+                    {selectedOption === idx && !isOptionCorrect(opt) && <X className="w-6 h-6 text-red-600" />}
+                </div>
+                </button>
+            );
+            })}
+        </div>
       </div>
     </div>
   );

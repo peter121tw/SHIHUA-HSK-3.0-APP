@@ -1,18 +1,18 @@
 {
-  "name": "新 HSK 3.0 生詞卡",
-  "short_name": "HSK Master",
-  "start_url": ".",
+  "name": "新 HSK 3.0 生詞卡學習系統",
+  "short_name": "HSK 3.0",
+  "start_url": "./",
   "display": "standalone",
-  "background_color": "#f0fdfa",
+  "background_color": "#a4cab6",
   "theme_color": "#14b8a6",
   "icons": [
     {
-      "src": "./logo.png",
+      "src": "https://raw.githubusercontent.com/peter121tw/SHIHUA-HSK-3.0-APP/main/logo.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./logo.png",
+      "src": "https://raw.githubusercontent.com/peter121tw/SHIHUA-HSK-3.0-APP/main/logo.png",
       "sizes": "512x512",
       "type": "image/png"
     }
