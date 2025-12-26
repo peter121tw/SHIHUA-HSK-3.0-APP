@@ -104,7 +104,7 @@ export const SpeedChallenge: React.FC<SpeedChallengeProps> = ({ words, onFinish,
   if (!currentWord) return <div className="p-8 text-center text-gray-400">Loading...</div>;
 
   return (
-    <div className="flex flex-col h-full p-4 max-w-3xl mx-auto">
+    <div className="flex flex-col h-full p-4 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
          <div className="flex items-center gap-2 bg-orange-100 px-6 py-3 rounded-2xl text-orange-700 font-bold font-mono text-xl shadow-sm">
             <Timer className="w-6 h-6" />

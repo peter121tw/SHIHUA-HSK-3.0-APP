@@ -110,7 +110,7 @@ export const MatchGame: React.FC<MatchGameProps> = ({ words, onFinish, favorites
   }
 
   return (
-    <div className="h-full p-4 flex flex-col max-w-4xl mx-auto">
+    <div className="h-full p-4 flex flex-col max-w-5xl mx-auto">
        <div className="text-center mb-6 text-gray-500 font-medium text-lg">Find the pairs ({matchesFound}/6)</div>
        <div className="grid grid-cols-3 md:grid-cols-4 gap-4 flex-1 content-center">
           {cards.map(card => (
@@ -131,7 +131,7 @@ export const MatchGame: React.FC<MatchGameProps> = ({ words, onFinish, favorites
                 `}>
                     {card.isFlipped ? (
                         <div className="flex flex-col items-center justify-center w-full h-full overflow-hidden">
-                            <span className={`font-bold ${card.type === 'hanzi' ? 'text-3xl text-gray-800' : 'text-sm md:text-base text-teal-700 break-words'}`}>
+                            <span className={`font-bold ${card.type === 'hanzi' ? 'text-3xl md:text-4xl text-gray-800' : 'text-sm md:text-lg text-teal-700 break-words'}`}>
                                 {card.content}
                             </span>
                              {card.type === 'hanzi' && card.partOfSpeech && (

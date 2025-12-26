@@ -58,9 +58,9 @@ export const Flashcard: React.FC<FlashcardProps> = ({ word, isFavorite, onToggle
   const examples = getExamples(word.sheetExample);
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full max-w-2xl mx-auto p-4">
+    <div className="flex flex-col items-center justify-center w-full h-full max-w-3xl mx-auto p-4">
       <div 
-        className={`relative w-full aspect-[3/4] md:aspect-video cursor-pointer card-flip group ${flipped ? 'card-flipped' : ''}`}
+        className={`relative w-full aspect-[4/3] md:aspect-video cursor-pointer card-flip group ${flipped ? 'card-flipped' : ''}`}
         onClick={() => setFlipped(!flipped)}
       >
         <div className="absolute w-full h-full transition-all duration-500 preserve-3d card-inner">
@@ -70,29 +70,29 @@ export const Flashcard: React.FC<FlashcardProps> = ({ word, isFavorite, onToggle
             
             <button 
               onClick={toggleFav}
-              className="absolute top-6 right-6 p-2 rounded-full text-yellow-400 hover:bg-yellow-50 transition-colors z-20"
+              className="absolute top-8 right-8 p-2 rounded-full text-yellow-400 hover:bg-yellow-50 transition-colors z-20"
             >
-              <Star className="w-8 h-8" filled={isFavorite} />
+              <Star className="w-10 h-10" filled={isFavorite} />
             </button>
 
-            <span className="absolute top-6 left-6 text-sm font-bold text-gray-300 uppercase tracking-widest">HSK {word.level}</span>
+            <span className="absolute top-8 left-8 text-sm font-bold text-gray-300 uppercase tracking-widest">HSK {word.level}</span>
             
             <div className="flex flex-col items-center justify-center flex-1">
-                <div className="text-8xl md:text-9xl font-bold text-gray-800 mb-6 text-center">{word.hanzi}</div>
+                <div className="text-9xl font-bold text-gray-800 mb-6 text-center">{word.hanzi}</div>
                 
                 {/* POS on Front */}
                 {word.partOfSpeech && (
-                    <span className="px-5 py-2 bg-primary-50 text-primary-600 text-xl rounded-full font-medium border border-primary-100">
+                    <span className="px-6 py-2 bg-primary-50 text-primary-600 text-xl rounded-full font-medium border border-primary-100">
                         {word.partOfSpeech}
                     </span>
                 )}
             </div>
 
-            <div className="text-gray-400 text-sm mt-4 font-medium uppercase tracking-wider">Tap card to reveal details</div>
+            <div className="text-gray-400 text-sm mt-4 font-medium uppercase tracking-wider">Tap card to flip</div>
             
             <button 
               onClick={handleSpeech}
-              className="absolute bottom-6 right-6 p-4 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 transition-colors z-20"
+              className="absolute bottom-8 right-8 p-4 rounded-full bg-primary-50 text-primary-600 hover:bg-primary-100 transition-colors z-20"
             >
               <Volume2 className="w-8 h-8" />
             </button>

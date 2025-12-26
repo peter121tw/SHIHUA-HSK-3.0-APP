@@ -124,7 +124,7 @@ export const Quiz: React.FC<QuizProps> = ({ words, onFinish, favorites, onToggle
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-4xl mx-auto p-0 md:p-8 h-full">
+    <div className="flex flex-col items-center justify-center w-full max-w-5xl mx-auto p-0 md:p-8 h-full">
       <div className="w-full flex justify-between items-center mb-6">
         <div className="text-gray-400 font-medium">Question {currentIndex + 1} / {quizSet.length}</div>
         <div className="px-4 py-1 bg-primary-50 text-primary-600 rounded-full font-bold text-sm">Score: {score}</div>
