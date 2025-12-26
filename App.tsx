@@ -152,8 +152,9 @@ const App = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center cursor-pointer gap-3" onClick={() => { setViewMode('home'); setSelectedLevel(null); setSearchTerm(''); }}>
-            <img src="./logo.png" alt="Logo" className="h-8 w-8 object-contain" />
-            <span className="text-xl font-bold text-gray-800 tracking-tight hidden sm:block">新 HSK 3.0 <span className="text-primary-600">Pro</span></span>
+             {/* Logo would go here if available */}
+             <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold">H</div>
+             <span className="text-xl font-bold text-gray-800 tracking-tight hidden sm:block">新 HSK 3.0 <span className="text-primary-600">Pro</span></span>
           </div>
 
           <div className="flex-1 flex items-center justify-center px-6 lg:ml-6 lg:justify-end">
@@ -295,7 +296,7 @@ const App = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col lg:flex-row gap-8 h-[calc(100vh-64px)]">
        
        {/* Sidebar Controls */}
-       <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-6 overflow-y-auto pr-2 pb-10">
+       <div className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-6 overflow-y-auto pr-2 pb-10 no-scrollbar">
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
              <h2 className="text-2xl font-bold text-gray-800 mb-1">{selectedLevel === 'favorites' ? 'Favorites' : `HSK Level ${selectedLevel}`}</h2>
              <p className="text-gray-500 text-sm mb-6">{currentWords.length} words loaded</p>
